@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * CSS variable mirror of tailwind.config.ts's color tokens (DESIGN_SYSTEM.md §2).
+ * Tailwind utility classes (bg-accent, text-danger, etc.) are the primary way
+ * components should reference these — these variables exist for the handful
+ * of places (inline SVG chart colors, third-party component props) that need
+ * a raw value rather than a class.
+ */
+:root {
+  --sidebar-bg: #0f1b2d;
+  --sidebar-text: #aeb9c7;
+  --sidebar-text-active: #ffffff;
+  --accent: #0d9488;
+  --accent-light: #ccfbf1;
+  --bg-canvas: #f5f7fa;
+  --bg-card: #ffffff;
+  --border: #e5e9f0;
+  --text-primary: #1a2332;
+  --text-secondary: #6b7688;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  /* §2 chart palette, in series order */
+  --chart-1: #0d9488;
+  --chart-2: #3b82f6;
+  --chart-3: #8b5cf6;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --chart-6: #14b8a6;
+  --chart-7: #6366f1;
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+/* Sidebar nav scrollbar — default OS scrollbars render with a light/white
+   track that looks broken against the dark navy sidebar background. */
+.sidebar-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}

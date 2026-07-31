@@ -1,0 +1,214 @@
+.
+├── apps
+│   ├── api
+│   │   ├── migrations
+│   │   │   ├── 1699999999999-CreateInitialSchema.ts
+│   │   │   ├── 1700000000000-EnableRls.ts
+│   │   │   ├── 1720000000000-CreateStudentsTable.ts
+│   │   │   ├── 1720000000001-BackfillPhase1RolePermissions.ts
+│   │   │   ├── 1720100000000-CreateAdmissionsTable.ts
+│   │   │   ├── 1720100000001-BackfillAdmissionsRolePermissions.ts
+│   │   │   ├── 1720200000000-CreateAcademicManagementTables.ts
+│   │   │   ├── 1720200000001-BackfillAcademicManagementRolePermissions.ts
+│   │   │   ├── 1720300000000-LinkStudentsToClasses.ts
+│   │   │   ├── 1720400000000-CreateAttendanceTable.ts
+│   │   │   ├── 1720400000001-BackfillAttendanceRolePermissions.ts
+│   │   │   ├── 1720600000000-AddRollNumberToStudents.ts
+│   │   │   ├── 1720700000000-AddDuplicateStudentStatus.ts
+│   │   │   ├── 1720800000000-CreateFeeManagementTables.ts
+│   │   │   ├── 1720800000001-BackfillFeeManagementRolePermissions.ts
+│   │   │   ├── 1720900000000-CreateCommunicationTables.ts
+│   │   │   ├── 1720900000001-BackfillCommunicationRolePermissions.ts
+│   │   │   ├── 1721000000000-CreateExaminationsTables.ts
+│   │   │   ├── 1721000000001-BackfillExaminationsRolePermissions.ts
+│   │   │   ├── 1722000000000-CreateExamGroups.ts
+│   │   │   ├── 1722100000000-FixExamGroupsRlsPolicy.ts
+│   │   │   ├── 1723000000000-AddStudentIdToUsers.ts
+│   │   │   ├── 1724000000000-CreateAssignments.ts
+│   │   │   ├── 1724100000000-BackfillLmsRolePermissions.ts
+│   │   │   ├── 1724200000000-CreateLmsResourcesLecturesDiscussions.ts
+│   │   │   ├── 1724300000000-BackfillLibraryRolePermissions.ts
+│   │   │   ├── 1724400000000-CreateLibraryTables.ts
+│   │   │   ├── 1724500000000-BackfillTransportationRolePermissions.ts
+│   │   │   ├── 1724600000000-CreateTransportationTables.ts
+│   │   │   ├── 1724700000000-BackfillHealthWellnessRolePermissions.ts
+│   │   │   ├── 1724800000000-CreateHealthWellnessTables.ts
+│   │   │   ├── 1724900000000-BackfillInventoryAssetsRolePermissions.ts
+│   │   │   ├── 1725000000000-CreateInventoryAssetsTables.ts
+│   │   │   ├── 1725100000000-BackfillCafeteriaRolePermissions.ts
+│   │   │   ├── 1725200000000-CreateCafeteriaTables.ts
+│   │   │   ├── 1725300000000-EnableRlsForLmsAndPhase3Tables.ts
+│   │   │   ├── 1725400000000-CreateTenantFeatureToggles.ts
+│   │   │   ├── 1725500000000-CreateHostelTables.ts
+│   │   │   ├── 1725600000000-BackfillHostelAdminRole.ts
+│   │   │   ├── 1725700000000-BackfillHostelPermissionsOnAdminRoles.ts
+│   │   │   ├── 1725800000000-BackfillStudentLifecycleViewForHostelAdmin.ts
+│   │   │   ├── 1725900000000-CreateHrManagementTables.ts
+│   │   │   ├── 1726000000000-BackfillHrManagerRole.ts
+│   │   │   ├── 1726100000000-BackfillHrPermissionsOnAdminRoles.ts
+│   │   │   ├── 1726200000000-BackfillEmployeeRecordsForExistingStaff.ts
+│   │   │   ├── 1726300000000-CreatePayrollTables.ts
+│   │   │   ├── 1726400000000-BackfillPayrollAdminRole.ts
+│   │   │   ├── 1726500000000-BackfillPayrollPermissionsOnAdminRoles.ts
+│   │   │   ├── 1726600000000-SeedPayrollSettingsForExistingTenants.ts
+│   │   │   ├── 1726700000000-FixRolesRlsPolicyForNullTenant.ts
+│   │   │   ├── 1726800000000-CreateVehicleMaintenanceRecords.ts
+│   │   │   ├── 1726900000000-CreateParentStudentLinks.ts
+│   │   │   ├── 1727000000000-CreateHrPolicyDocuments.ts
+│   │   │   ├── 1727100000000-CreateLibraryTransportationCafeteriaAdminRoles.ts
+│   │   │   ├── 1727200000000-AddElectiveFieldsToSubjects.ts
+│   │   │   ├── 1727300000000-CreateClassElectivesAndSelections.ts
+│   │   │   ├── 1727310000000-AddDeletedAtToSubjects.ts
+│   │   │   ├── 1727400000000-CreateDiaryEntriesAndReplies.ts
+│   │   │   ├── 1727500000000-CreateActivitiesTables.ts
+│   │   │   ├── 1727600000000-CreateActivityCoordinatorRole.ts
+│   │   │   ├── 1727700000000-BackfillActivitiesPermissionsOnExistingRoles.ts
+│   │   │   ├── 1727800000000-CreateDisciplineTables.ts
+│   │   │   ├── 1727800000000-CreateTeacherSubjectSpecializations.ts
+│   │   │   ├── 1727900000000-CreateCounselorRole.ts
+│   │   │   ├── 1728000000000-BackfillDisciplinePermissionsOnExistingRoles.ts
+│   │   │   ├── 1728100000000-CreateDocumentsTables.ts
+│   │   │   ├── 1728200000000-MigrateHrPolicyDocumentsData.ts
+│   │   │   ├── 1728300000000-DropHrPolicyDocumentsTables.ts
+│   │   │   ├── 1728400000000-BackfillDocumentsPermissionsOnExistingRoles.ts
+│   │   │   ├── 1728500000000-CreateAlumniTables.ts
+│   │   │   ├── 1728600000000-BackfillAlumniPermissionsOnExistingRoles.ts
+│   │   │   ├── 1784680000000-AllowCoLocatedElectiveTimetableSlots.ts
+│   │   │   ├── 1784690000000-DropUnusedPermissionsTable.ts
+│   │   │   ├── assign_specializations.py
+│   │   │   └── regenerate_all_timetables.py
+│   │   ├── src
+│   │   │   ├── common
+│   │   │   │   ├── context
+│   │   │   │   ├── decorators
+│   │   │   │   ├── filters
+│   │   │   │   ├── guards
+│   │   │   │   ├── interceptors
+│   │   │   │   ├── middleware
+│   │   │   │   └── utils
+│   │   │   ├── config
+│   │   │   │   └── typeorm.config.ts
+│   │   │   ├── database
+│   │   │   │   └── seed.ts
+│   │   │   ├── modules
+│   │   │   │   ├── academic-years
+│   │   │   │   ├── activities
+│   │   │   │   ├── admissions
+│   │   │   │   ├── alumni
+│   │   │   │   ├── attendance
+│   │   │   │   ├── auth
+│   │   │   │   ├── cafeteria
+│   │   │   │   ├── campuses
+│   │   │   │   ├── classes
+│   │   │   │   ├── communication
+│   │   │   │   ├── diary
+│   │   │   │   ├── discipline
+│   │   │   │   ├── documents
+│   │   │   │   ├── examinations
+│   │   │   │   ├── feature-toggles
+│   │   │   │   ├── fees
+│   │   │   │   ├── health-wellness
+│   │   │   │   ├── hostel
+│   │   │   │   ├── hr-management
+│   │   │   │   ├── inventory-assets
+│   │   │   │   ├── library
+│   │   │   │   ├── lms
+│   │   │   │   ├── payroll
+│   │   │   │   ├── roles
+│   │   │   │   ├── students
+│   │   │   │   ├── subjects
+│   │   │   │   ├── tenants
+│   │   │   │   ├── timetable
+│   │   │   │   ├── transportation
+│   │   │   │   └── users
+│   │   │   ├── app.module.ts
+│   │   │   └── main.ts
+│   │   ├── test
+│   │   │   └── jest-e2e.json
+│   │   ├── uploads
+│   │   │   ├── assignments
+│   │   │   │   └── fa0edb4d-37ca-4057-83b1-59bb6e8cb489
+│   │   │   ├── documents
+│   │   │   │   └── fa0edb4d-37ca-4057-83b1-59bb6e8cb489
+│   │   │   ├── hr-policy-documents
+│   │   │   │   └── fa0edb4d-37ca-4057-83b1-59bb6e8cb489
+│   │   │   ├── lectures
+│   │   │   │   └── fa0edb4d-37ca-4057-83b1-59bb6e8cb489
+│   │   │   └── resources
+│   │   │       └── fa0edb4d-37ca-4057-83b1-59bb6e8cb489
+│   │   ├── .env
+│   │   ├── .env.example
+│   │   ├── .eslintrc.js
+│   │   ├── .prettierrc
+│   │   ├── nest-cli.json
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   └── web
+│       ├── src
+│       │   ├── app
+│       │   │   ├── (dashboard)
+│       │   │   ├── login
+│       │   │   ├── globals.css
+│       │   │   ├── layout.tsx
+│       │   │   └── page.tsx
+│       │   ├── components
+│       │   │   ├── activities
+│       │   │   ├── alumni
+│       │   │   ├── assignments
+│       │   │   ├── attendance
+│       │   │   ├── cafeteria
+│       │   │   ├── charts
+│       │   │   ├── dashboard
+│       │   │   ├── diary
+│       │   │   ├── discipline
+│       │   │   ├── documents
+│       │   │   ├── examinations
+│       │   │   ├── fees
+│       │   │   ├── health-wellness
+│       │   │   ├── hostel
+│       │   │   ├── hr-management
+│       │   │   ├── inventory-assets
+│       │   │   ├── layout
+│       │   │   ├── library
+│       │   │   ├── lms
+│       │   │   ├── payroll
+│       │   │   ├── transportation
+│       │   │   └── ui
+│       │   └── lib
+│       │       ├── api.ts
+│       │       ├── auth.ts
+│       │       ├── chart-utils.ts
+│       │       ├── roles.ts
+│       │       ├── sidebar-context.tsx
+│       │       └── types.ts
+│       ├── .env.local.example
+│       ├── next-env.d.ts
+│       ├── next.config.mjs
+│       ├── package-lock.json
+│       ├── package.json
+│       ├── postcss.config.mjs
+│       ├── tailwind.config.ts
+│       ├── tsconfig.json
+│       └── tsconfig.tsbuildinfo
+├── not needed
+│   ├── backend_dead_code_scan.py
+│   ├── check_lms_files.sh
+│   ├── cleanup_lms_test_data.sh
+│   ├── frontend_dead_code_scan.py
+│   ├── generate_timetables.py
+│   ├── rebuild_electives.py
+│   ├── regenerate_all_timetables.py
+│   └── test_lms.sh
+├── assign_specializations.py
+├── docker-compose.yml
+├── pre_tenant_cleanup_backup.sql
+├── PROGRESS.md
+├── README.md
+├── repo_structure.txt
+├── schema_columns.csv
+├── schema_reference.sql
+├── schema_tables_rowcounts.csv
+└── test-api.sh
+
+88 directories, 124 files

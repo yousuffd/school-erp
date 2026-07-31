@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Env files — never commit real secrets
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Uploaded file content (keep folder structure via .gitkeep)
+apps/api/uploads/**/*
+!apps/api/uploads/**/.gitkeep
+!apps/api/uploads/**/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Testing
+coverage/

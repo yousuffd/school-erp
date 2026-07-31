@@ -1,0 +1,937 @@
+table_name,column_name,data_type,is_nullable
+academic_years,id,uuid,NO
+academic_years,tenant_id,uuid,NO
+academic_years,label,character varying,NO
+academic_years,start_date,date,NO
+academic_years,end_date,date,NO
+academic_years,is_current,boolean,NO
+academic_years,created_at,timestamp without time zone,NO
+academic_years,updated_at,timestamp without time zone,NO
+activities,id,uuid,NO
+activities,tenant_id,uuid,NO
+activities,name,character varying,NO
+activities,category,USER-DEFINED,NO
+activities,description,text,YES
+activities,created_at,timestamp without time zone,NO
+activities,updated_at,timestamp without time zone,NO
+activity_rosters,id,uuid,NO
+activity_rosters,tenant_id,uuid,NO
+activity_rosters,activity_id,uuid,NO
+activity_rosters,student_id,uuid,NO
+activity_rosters,joined_date,date,NO
+activity_rosters,created_at,timestamp without time zone,NO
+activity_rosters,updated_at,timestamp without time zone,NO
+admissions,id,uuid,NO
+admissions,tenant_id,uuid,NO
+admissions,campus_id,uuid,NO
+admissions,academic_year_id,uuid,NO
+admissions,applicant_first_name,character varying,NO
+admissions,applicant_last_name,character varying,NO
+admissions,date_of_birth,date,NO
+admissions,desired_grade_level,character varying,NO
+admissions,guardian_name,character varying,NO
+admissions,guardian_phone,character varying,NO
+admissions,guardian_email,character varying,YES
+admissions,source,USER-DEFINED,NO
+admissions,stage,USER-DEFINED,NO
+admissions,notes,text,YES
+admissions,enrolled_student_id,uuid,YES
+admissions,created_at,timestamp without time zone,NO
+admissions,updated_at,timestamp without time zone,NO
+alumni_event_registrations,id,uuid,NO
+alumni_event_registrations,tenant_id,uuid,NO
+alumni_event_registrations,event_id,uuid,NO
+alumni_event_registrations,alumni_id,uuid,NO
+alumni_event_registrations,registered_at,timestamp without time zone,NO
+alumni_events,id,uuid,NO
+alumni_events,tenant_id,uuid,NO
+alumni_events,name,character varying,NO
+alumni_events,event_date,date,NO
+alumni_events,location,character varying,YES
+alumni_events,description,text,YES
+alumni_events,created_at,timestamp without time zone,NO
+alumni_events,updated_at,timestamp without time zone,NO
+alumni_profiles,id,uuid,NO
+alumni_profiles,tenant_id,uuid,NO
+alumni_profiles,student_id,uuid,NO
+alumni_profiles,graduation_year,integer,NO
+alumni_profiles,current_occupation,character varying,YES
+alumni_profiles,current_employer,character varying,YES
+alumni_profiles,current_city,character varying,YES
+alumni_profiles,contact_email,character varying,YES
+alumni_profiles,contact_phone,character varying,YES
+alumni_profiles,linkedin_url,character varying,YES
+alumni_profiles,bio,text,YES
+alumni_profiles,created_at,timestamp without time zone,NO
+alumni_profiles,updated_at,timestamp without time zone,NO
+applicants,id,uuid,NO
+applicants,tenant_id,uuid,NO
+applicants,job_opening_id,uuid,NO
+applicants,name,character varying,NO
+applicants,email,character varying,NO
+applicants,phone,character varying,YES
+applicants,resume_url,character varying,YES
+applicants,stage,USER-DEFINED,NO
+applicants,created_at,timestamp without time zone,NO
+applicants,updated_at,timestamp without time zone,NO
+asset_tags,id,uuid,NO
+asset_tags,tenant_id,uuid,NO
+asset_tags,item_id,uuid,NO
+asset_tags,campus_id,uuid,NO
+asset_tags,asset_tag_number,character varying,NO
+asset_tags,status,USER-DEFINED,NO
+asset_tags,assigned_location,character varying,YES
+asset_tags,purchase_date,date,YES
+asset_tags,purchase_cost,numeric,YES
+asset_tags,created_at,timestamp without time zone,NO
+asset_tags,updated_at,timestamp without time zone,NO
+assignment_submissions,id,uuid,NO
+assignment_submissions,tenant_id,uuid,NO
+assignment_submissions,assignment_id,uuid,NO
+assignment_submissions,student_id,uuid,NO
+assignment_submissions,file_path,character varying,NO
+assignment_submissions,original_filename,character varying,NO
+assignment_submissions,mime_type,character varying,NO
+assignment_submissions,file_size,integer,NO
+assignment_submissions,submitted_at,timestamp without time zone,NO
+assignment_submissions,is_late,boolean,NO
+assignment_submissions,score,numeric,YES
+assignment_submissions,feedback,text,YES
+assignment_submissions,graded_by,uuid,YES
+assignment_submissions,graded_at,timestamp without time zone,YES
+assignment_submissions,uploaded_by,uuid,NO
+assignment_submissions,created_at,timestamp without time zone,NO
+assignment_submissions,updated_at,timestamp without time zone,NO
+assignments,id,uuid,NO
+assignments,tenant_id,uuid,NO
+assignments,subject_id,uuid,NO
+assignments,school_class_id,uuid,NO
+assignments,academic_year_id,uuid,NO
+assignments,title,character varying,NO
+assignments,instructions,text,YES
+assignments,due_date,timestamp without time zone,NO
+assignments,max_score,numeric,NO
+assignments,created_by,uuid,NO
+assignments,created_at,timestamp without time zone,NO
+assignments,updated_at,timestamp without time zone,NO
+attendance_records,id,uuid,NO
+attendance_records,tenant_id,uuid,NO
+attendance_records,school_class_id,uuid,NO
+attendance_records,student_id,uuid,NO
+attendance_records,date,date,NO
+attendance_records,status,USER-DEFINED,NO
+attendance_records,marked_by,uuid,NO
+attendance_records,notes,text,YES
+attendance_records,created_at,timestamp without time zone,NO
+attendance_records,updated_at,timestamp without time zone,NO
+awards,id,uuid,NO
+awards,tenant_id,uuid,NO
+awards,student_id,uuid,NO
+awards,event_id,uuid,YES
+awards,title,character varying,NO
+awards,awarded_date,date,NO
+awards,issued_by,uuid,NO
+awards,created_at,timestamp without time zone,NO
+awards,updated_at,timestamp without time zone,NO
+behavior_incidents,id,uuid,NO
+behavior_incidents,tenant_id,uuid,NO
+behavior_incidents,student_id,uuid,NO
+behavior_incidents,reported_by,uuid,NO
+behavior_incidents,incident_date,date,NO
+behavior_incidents,incident_type,USER-DEFINED,NO
+behavior_incidents,points,integer,NO
+behavior_incidents,description,text,NO
+behavior_incidents,status,USER-DEFINED,NO
+behavior_incidents,created_at,timestamp without time zone,NO
+behavior_incidents,updated_at,timestamp without time zone,NO
+book_copies,id,uuid,NO
+book_copies,tenant_id,uuid,NO
+book_copies,book_id,uuid,NO
+book_copies,campus_id,uuid,NO
+book_copies,barcode,character varying,NO
+book_copies,status,USER-DEFINED,NO
+book_copies,created_at,timestamp without time zone,NO
+book_copies,updated_at,timestamp without time zone,NO
+book_issues,id,uuid,NO
+book_issues,tenant_id,uuid,NO
+book_issues,book_copy_id,uuid,NO
+book_issues,student_id,uuid,NO
+book_issues,issued_by,uuid,NO
+book_issues,issue_date,date,NO
+book_issues,due_date,date,NO
+book_issues,return_date,date,YES
+book_issues,returned_by,uuid,YES
+book_issues,fine_amount,numeric,YES
+book_issues,fine_paid,boolean,NO
+book_issues,created_at,timestamp without time zone,NO
+book_issues,updated_at,timestamp without time zone,NO
+book_reservations,id,uuid,NO
+book_reservations,tenant_id,uuid,NO
+book_reservations,book_id,uuid,NO
+book_reservations,student_id,uuid,NO
+book_reservations,status,USER-DEFINED,NO
+book_reservations,fulfilled_book_copy_id,uuid,YES
+book_reservations,created_at,timestamp without time zone,NO
+book_reservations,updated_at,timestamp without time zone,NO
+books,id,uuid,NO
+books,tenant_id,uuid,NO
+books,title,character varying,NO
+books,author,character varying,NO
+books,isbn,character varying,YES
+books,category,character varying,YES
+books,publisher,character varying,YES
+books,edition,character varying,YES
+books,cover_url,character varying,YES
+books,description,text,YES
+books,created_at,timestamp without time zone,NO
+books,updated_at,timestamp without time zone,NO
+campuses,id,uuid,NO
+campuses,tenant_id,uuid,NO
+campuses,name,character varying,NO
+campuses,address,text,YES
+campuses,timezone,character varying,NO
+campuses,created_at,timestamp without time zone,NO
+campuses,updated_at,timestamp without time zone,NO
+certificates,id,uuid,NO
+certificates,tenant_id,uuid,NO
+certificates,student_id,uuid,NO
+certificates,certificate_type,USER-DEFINED,NO
+certificates,issued_date,date,NO
+certificates,issued_by,uuid,NO
+certificates,created_at,timestamp without time zone,NO
+circular_read_receipts,id,uuid,NO
+circular_read_receipts,circular_id,uuid,NO
+circular_read_receipts,user_id,uuid,NO
+circular_read_receipts,read_at,timestamp without time zone,NO
+circulars,id,uuid,NO
+circulars,tenant_id,uuid,NO
+circulars,title,character varying,NO
+circulars,body,text,NO
+circulars,priority,USER-DEFINED,NO
+circulars,audience_scope,USER-DEFINED,NO
+circulars,audience_grade_level,character varying,YES
+circulars,audience_school_class_id,uuid,YES
+circulars,published_by,uuid,NO
+circulars,published_at,timestamp without time zone,NO
+circulars,updated_at,timestamp without time zone,NO
+class_elective_offerings,id,uuid,NO
+class_elective_offerings,tenant_id,uuid,NO
+class_elective_offerings,school_class_id,uuid,NO
+class_elective_offerings,subject_id,uuid,NO
+class_elective_offerings,created_at,timestamp without time zone,NO
+clinic_visits,id,uuid,NO
+clinic_visits,tenant_id,uuid,NO
+clinic_visits,student_id,uuid,NO
+clinic_visits,visit_date,timestamp without time zone,NO
+clinic_visits,reason,text,NO
+clinic_visits,treatment_given,text,YES
+clinic_visits,follow_up_required,boolean,NO
+clinic_visits,recorded_by,uuid,NO
+clinic_visits,created_at,timestamp without time zone,NO
+clinic_visits,updated_at,timestamp without time zone,NO
+corrective_actions,id,uuid,NO
+corrective_actions,tenant_id,uuid,NO
+corrective_actions,incident_id,uuid,NO
+corrective_actions,description,text,NO
+corrective_actions,assigned_to,uuid,NO
+corrective_actions,due_date,date,NO
+corrective_actions,completed_date,date,YES
+corrective_actions,status,USER-DEFINED,NO
+corrective_actions,created_at,timestamp without time zone,NO
+corrective_actions,updated_at,timestamp without time zone,NO
+counseling_referrals,id,uuid,NO
+counseling_referrals,tenant_id,uuid,NO
+counseling_referrals,incident_id,uuid,NO
+counseling_referrals,referred_to,uuid,NO
+counseling_referrals,reason,text,NO
+counseling_referrals,status,USER-DEFINED,NO
+counseling_referrals,notes,text,YES
+counseling_referrals,created_at,timestamp without time zone,NO
+counseling_referrals,updated_at,timestamp without time zone,NO
+daily_menu_items,id,uuid,NO
+daily_menu_items,tenant_id,uuid,NO
+daily_menu_items,daily_menu_id,uuid,NO
+daily_menu_items,menu_item_id,uuid,NO
+daily_menu_items,created_at,timestamp without time zone,NO
+daily_menus,id,uuid,NO
+daily_menus,tenant_id,uuid,NO
+daily_menus,menu_date,date,NO
+daily_menus,meal_type,USER-DEFINED,NO
+daily_menus,created_at,timestamp without time zone,NO
+daily_menus,updated_at,timestamp without time zone,NO
+diary_entries,id,uuid,NO
+diary_entries,tenant_id,uuid,NO
+diary_entries,campus_id,uuid,NO
+diary_entries,class_id,uuid,NO
+diary_entries,scope,USER-DEFINED,NO
+diary_entries,student_id,uuid,YES
+diary_entries,author_id,uuid,NO
+diary_entries,category,USER-DEFINED,NO
+diary_entries,content,text,NO
+diary_entries,entry_date,date,NO
+diary_entries,created_at,timestamp with time zone,NO
+diary_entries,updated_at,timestamp with time zone,NO
+diary_entries,deleted_at,timestamp with time zone,YES
+diary_replies,id,uuid,NO
+diary_replies,tenant_id,uuid,NO
+diary_replies,diary_entry_id,uuid,NO
+diary_replies,author_id,uuid,NO
+diary_replies,content,text,NO
+diary_replies,created_at,timestamp with time zone,NO
+diary_replies,deleted_at,timestamp with time zone,YES
+discussion_posts,id,uuid,NO
+discussion_posts,tenant_id,uuid,NO
+discussion_posts,thread_id,uuid,NO
+discussion_posts,author_id,uuid,NO
+discussion_posts,content,text,NO
+discussion_posts,created_at,timestamp without time zone,NO
+discussion_threads,id,uuid,NO
+discussion_threads,tenant_id,uuid,NO
+discussion_threads,subject_id,uuid,NO
+discussion_threads,school_class_id,uuid,NO
+discussion_threads,academic_year_id,uuid,NO
+discussion_threads,title,character varying,NO
+discussion_threads,created_by,uuid,NO
+discussion_threads,created_at,timestamp without time zone,NO
+discussion_threads,updated_at,timestamp without time zone,NO
+document_acknowledgments,id,uuid,NO
+document_acknowledgments,tenant_id,uuid,NO
+document_acknowledgments,document_id,uuid,NO
+document_acknowledgments,acknowledged_by,uuid,NO
+document_acknowledgments,acknowledged_at,timestamp without time zone,NO
+documents,id,uuid,NO
+documents,tenant_id,uuid,NO
+documents,category,USER-DEFINED,NO
+documents,title,character varying,NO
+documents,description,text,YES
+documents,related_student_id,uuid,YES
+documents,related_employee_id,uuid,YES
+documents,file_path,character varying,NO
+documents,original_filename,character varying,NO
+documents,mime_type,character varying,NO
+documents,file_size,integer,NO
+documents,version,integer,NO
+documents,supersedes_document_id,uuid,YES
+documents,approval_status,USER-DEFINED,NO
+documents,approved_by,uuid,YES
+documents,uploaded_by,uuid,NO
+documents,created_at,timestamp without time zone,NO
+documents,updated_at,timestamp without time zone,NO
+donations,id,uuid,NO
+donations,tenant_id,uuid,NO
+donations,alumni_id,uuid,NO
+donations,amount,numeric,NO
+donations,donation_date,date,NO
+donations,purpose,character varying,YES
+donations,payment_method,USER-DEFINED,NO
+donations,recorded_by,uuid,NO
+donations,notes,text,YES
+donations,created_at,timestamp without time zone,NO
+drivers,id,uuid,NO
+drivers,tenant_id,uuid,NO
+drivers,name,character varying,NO
+drivers,license_number,character varying,NO
+drivers,phone,character varying,NO
+drivers,status,USER-DEFINED,NO
+drivers,created_at,timestamp without time zone,NO
+drivers,updated_at,timestamp without time zone,NO
+employees,id,uuid,NO
+employees,tenant_id,uuid,NO
+employees,user_id,uuid,YES
+employees,manager_id,uuid,YES
+employees,name,character varying,NO
+employees,email,character varying,NO
+employees,department,character varying,NO
+employees,designation,character varying,NO
+employees,employment_type,USER-DEFINED,NO
+employees,status,USER-DEFINED,NO
+employees,date_of_joining,date,NO
+employees,contract_end_date,date,YES
+employees,base_salary,numeric,YES
+employees,created_at,timestamp without time zone,NO
+employees,updated_at,timestamp without time zone,NO
+event_registrations,id,uuid,NO
+event_registrations,tenant_id,uuid,NO
+event_registrations,event_id,uuid,NO
+event_registrations,student_id,uuid,NO
+event_registrations,registered_at,timestamp without time zone,NO
+event_registrations,updated_at,timestamp without time zone,NO
+events,id,uuid,NO
+events,tenant_id,uuid,NO
+events,activity_id,uuid,YES
+events,name,character varying,NO
+events,event_type,USER-DEFINED,NO
+events,event_date,date,NO
+events,location,character varying,YES
+events,opponent_name,character varying,YES
+events,our_score,integer,YES
+events,opponent_score,integer,YES
+events,result,USER-DEFINED,YES
+events,created_at,timestamp without time zone,NO
+events,updated_at,timestamp without time zone,NO
+exam_groups,id,uuid,NO
+exam_groups,tenant_id,uuid,NO
+exam_groups,academic_year_id,uuid,NO
+exam_groups,name,character varying,NO
+exam_groups,created_at,timestamp without time zone,NO
+exam_groups,updated_at,timestamp without time zone,NO
+exam_results,id,uuid,NO
+exam_results,tenant_id,uuid,NO
+exam_results,exam_id,uuid,NO
+exam_results,student_id,uuid,NO
+exam_results,marks_obtained,numeric,YES
+exam_results,entered_by,uuid,NO
+exam_results,created_at,timestamp without time zone,NO
+exam_results,updated_at,timestamp without time zone,NO
+exams,id,uuid,NO
+exams,tenant_id,uuid,NO
+exams,subject_id,uuid,NO
+exams,school_class_id,uuid,NO
+exams,academic_year_id,uuid,NO
+exams,name,character varying,NO
+exams,exam_date,date,NO
+exams,max_marks,numeric,NO
+exams,created_by,uuid,NO
+exams,created_at,timestamp without time zone,NO
+exams,updated_at,timestamp without time zone,NO
+exams,exam_group_id,uuid,YES
+fee_adjustments,id,uuid,NO
+fee_adjustments,tenant_id,uuid,NO
+fee_adjustments,fee_assignment_id,uuid,NO
+fee_adjustments,type,USER-DEFINED,NO
+fee_adjustments,amount,numeric,NO
+fee_adjustments,reason,character varying,NO
+fee_adjustments,created_by,uuid,NO
+fee_adjustments,created_at,timestamp without time zone,NO
+fee_assignments,id,uuid,NO
+fee_assignments,tenant_id,uuid,NO
+fee_assignments,student_id,uuid,NO
+fee_assignments,fee_structure_id,uuid,NO
+fee_assignments,academic_year_id,uuid,NO
+fee_assignments,assigned_at,timestamp without time zone,NO
+fee_components,id,uuid,NO
+fee_components,fee_structure_id,uuid,NO
+fee_components,name,character varying,NO
+fee_components,amount,numeric,NO
+fee_installments,id,uuid,NO
+fee_installments,fee_structure_id,uuid,NO
+fee_installments,label,character varying,NO
+fee_installments,due_date,date,NO
+fee_installments,amount,numeric,NO
+fee_payments,id,uuid,NO
+fee_payments,tenant_id,uuid,NO
+fee_payments,fee_assignment_id,uuid,NO
+fee_payments,fee_installment_id,uuid,YES
+fee_payments,amount,numeric,NO
+fee_payments,payment_date,date,NO
+fee_payments,method,USER-DEFINED,NO
+fee_payments,reference_number,character varying,YES
+fee_payments,recorded_by,uuid,NO
+fee_payments,notes,text,YES
+fee_payments,created_at,timestamp without time zone,NO
+fee_structures,id,uuid,NO
+fee_structures,tenant_id,uuid,NO
+fee_structures,academic_year_id,uuid,NO
+fee_structures,grade_level,character varying,NO
+fee_structures,name,character varying,NO
+fee_structures,created_at,timestamp without time zone,NO
+fee_structures,updated_at,timestamp without time zone,NO
+full_final_settlements,id,uuid,NO
+full_final_settlements,tenant_id,uuid,NO
+full_final_settlements,employee_id,uuid,NO
+full_final_settlements,last_working_date,date,NO
+full_final_settlements,dues,numeric,NO
+full_final_settlements,deductions,numeric,NO
+full_final_settlements,net_settlement_amount,numeric,NO
+full_final_settlements,status,USER-DEFINED,NO
+full_final_settlements,created_at,timestamp without time zone,NO
+full_final_settlements,updated_at,timestamp without time zone,NO
+hostel_attendance_records,id,uuid,NO
+hostel_attendance_records,tenant_id,uuid,NO
+hostel_attendance_records,student_id,uuid,NO
+hostel_attendance_records,date,date,NO
+hostel_attendance_records,status,USER-DEFINED,NO
+hostel_attendance_records,curfew_check_in_time,time without time zone,YES
+hostel_attendance_records,created_at,timestamp without time zone,NO
+hostel_attendance_records,updated_at,timestamp without time zone,NO
+hostel_maintenance_requests,id,uuid,NO
+hostel_maintenance_requests,tenant_id,uuid,NO
+hostel_maintenance_requests,room_id,uuid,NO
+hostel_maintenance_requests,description,text,NO
+hostel_maintenance_requests,status,USER-DEFINED,NO
+hostel_maintenance_requests,reported_by,uuid,NO
+hostel_maintenance_requests,reported_date,date,NO
+hostel_maintenance_requests,resolved_date,date,YES
+hostel_maintenance_requests,created_at,timestamp without time zone,NO
+hostel_maintenance_requests,updated_at,timestamp without time zone,NO
+hostel_room_allocations,id,uuid,NO
+hostel_room_allocations,tenant_id,uuid,NO
+hostel_room_allocations,room_id,uuid,NO
+hostel_room_allocations,student_id,uuid,NO
+hostel_room_allocations,academic_year_id,uuid,NO
+hostel_room_allocations,allocated_date,date,NO
+hostel_room_allocations,vacated_date,date,YES
+hostel_room_allocations,status,USER-DEFINED,NO
+hostel_room_allocations,created_at,timestamp without time zone,NO
+hostel_room_allocations,updated_at,timestamp without time zone,NO
+hostel_room_preferences,id,uuid,NO
+hostel_room_preferences,tenant_id,uuid,NO
+hostel_room_preferences,student_id,uuid,NO
+hostel_room_preferences,preferred_roommate_id,uuid,YES
+hostel_room_preferences,preferred_floor,integer,YES
+hostel_room_preferences,notes,text,YES
+hostel_room_preferences,matched_room_id,uuid,YES
+hostel_room_preferences,created_at,timestamp without time zone,NO
+hostel_room_preferences,updated_at,timestamp without time zone,NO
+hostel_rooms,id,uuid,NO
+hostel_rooms,tenant_id,uuid,NO
+hostel_rooms,campus_id,uuid,NO
+hostel_rooms,building_name,character varying,NO
+hostel_rooms,room_number,character varying,NO
+hostel_rooms,floor,integer,YES
+hostel_rooms,capacity,integer,NO
+hostel_rooms,room_type,USER-DEFINED,NO
+hostel_rooms,created_at,timestamp without time zone,NO
+hostel_rooms,updated_at,timestamp without time zone,NO
+hostel_visitors,id,uuid,NO
+hostel_visitors,tenant_id,uuid,NO
+hostel_visitors,student_id,uuid,NO
+hostel_visitors,visitor_name,character varying,NO
+hostel_visitors,relation,character varying,NO
+hostel_visitors,purpose,text,YES
+hostel_visitors,id_proof_type,character varying,YES
+hostel_visitors,id_proof_number,character varying,YES
+hostel_visitors,check_in_time,timestamp without time zone,NO
+hostel_visitors,check_out_time,timestamp without time zone,YES
+hostel_visitors,pass_code,character varying,YES
+hostel_visitors,verified,boolean,NO
+hostel_visitors,created_at,timestamp without time zone,NO
+hostel_visitors,updated_at,timestamp without time zone,NO
+immunization_records,id,uuid,NO
+immunization_records,tenant_id,uuid,NO
+immunization_records,student_id,uuid,NO
+immunization_records,vaccine_name,character varying,NO
+immunization_records,date_administered,date,NO
+immunization_records,recorded_by,uuid,NO
+immunization_records,notes,text,YES
+immunization_records,created_at,timestamp without time zone,NO
+immunization_records,updated_at,timestamp without time zone,NO
+item_stocks,id,uuid,NO
+item_stocks,tenant_id,uuid,NO
+item_stocks,item_id,uuid,NO
+item_stocks,campus_id,uuid,NO
+item_stocks,quantity_on_hand,integer,NO
+item_stocks,created_at,timestamp without time zone,NO
+item_stocks,updated_at,timestamp without time zone,NO
+items,id,uuid,NO
+items,tenant_id,uuid,NO
+items,name,character varying,NO
+items,category,USER-DEFINED,NO
+items,unit,character varying,NO
+items,is_trackable_asset,boolean,NO
+items,reorder_point,integer,YES
+items,description,text,YES
+items,created_at,timestamp without time zone,NO
+items,updated_at,timestamp without time zone,NO
+job_openings,id,uuid,NO
+job_openings,tenant_id,uuid,NO
+job_openings,title,character varying,NO
+job_openings,department,character varying,NO
+job_openings,description,text,YES
+job_openings,status,USER-DEFINED,NO
+job_openings,created_at,timestamp without time zone,NO
+job_openings,updated_at,timestamp without time zone,NO
+learning_resources,id,uuid,NO
+learning_resources,tenant_id,uuid,NO
+learning_resources,subject_id,uuid,NO
+learning_resources,school_class_id,uuid,NO
+learning_resources,academic_year_id,uuid,NO
+learning_resources,title,character varying,NO
+learning_resources,description,text,YES
+learning_resources,file_path,character varying,NO
+learning_resources,original_filename,character varying,NO
+learning_resources,mime_type,character varying,NO
+learning_resources,file_size,integer,NO
+learning_resources,uploaded_by,uuid,NO
+learning_resources,created_at,timestamp without time zone,NO
+learning_resources,updated_at,timestamp without time zone,NO
+leave_requests,id,uuid,NO
+leave_requests,tenant_id,uuid,NO
+leave_requests,employee_id,uuid,NO
+leave_requests,leave_type,USER-DEFINED,NO
+leave_requests,from_date,date,NO
+leave_requests,to_date,date,NO
+leave_requests,reason,text,YES
+leave_requests,status,USER-DEFINED,NO
+leave_requests,approved_by,uuid,YES
+leave_requests,created_at,timestamp without time zone,NO
+leave_requests,updated_at,timestamp without time zone,NO
+lecture_progress,id,uuid,NO
+lecture_progress,tenant_id,uuid,NO
+lecture_progress,lecture_id,uuid,NO
+lecture_progress,student_id,uuid,NO
+lecture_progress,watched_at,timestamp without time zone,NO
+lectures,id,uuid,NO
+lectures,tenant_id,uuid,NO
+lectures,subject_id,uuid,NO
+lectures,school_class_id,uuid,NO
+lectures,academic_year_id,uuid,NO
+lectures,title,character varying,NO
+lectures,description,text,YES
+lectures,video_path,character varying,NO
+lectures,original_filename,character varying,NO
+lectures,mime_type,character varying,NO
+lectures,file_size,integer,NO
+lectures,uploaded_by,uuid,NO
+lectures,created_at,timestamp without time zone,NO
+lectures,updated_at,timestamp without time zone,NO
+loan_advances,id,uuid,NO
+loan_advances,tenant_id,uuid,NO
+loan_advances,employee_id,uuid,NO
+loan_advances,amount,numeric,NO
+loan_advances,monthly_recovery_amount,numeric,NO
+loan_advances,remaining_balance,numeric,NO
+loan_advances,status,USER-DEFINED,NO
+loan_advances,created_at,timestamp without time zone,NO
+loan_advances,updated_at,timestamp without time zone,NO
+meal_attendance_records,id,uuid,NO
+meal_attendance_records,tenant_id,uuid,NO
+meal_attendance_records,student_id,uuid,NO
+meal_attendance_records,attendance_date,date,NO
+meal_attendance_records,meal_type,USER-DEFINED,NO
+meal_attendance_records,recorded_by,uuid,NO
+meal_attendance_records,created_at,timestamp without time zone,NO
+medication_administrations,id,uuid,NO
+medication_administrations,tenant_id,uuid,NO
+medication_administrations,student_id,uuid,NO
+medication_administrations,medication_name,character varying,NO
+medication_administrations,dosage,character varying,NO
+medication_administrations,administered_at,timestamp without time zone,NO
+medication_administrations,administered_by,uuid,NO
+medication_administrations,consent_confirmed,boolean,NO
+medication_administrations,notes,text,YES
+medication_administrations,created_at,timestamp without time zone,NO
+medication_administrations,updated_at,timestamp without time zone,NO
+mentorship_matches,id,uuid,NO
+mentorship_matches,tenant_id,uuid,NO
+mentorship_matches,mentor_alumni_id,uuid,NO
+mentorship_matches,mentee_student_id,uuid,NO
+mentorship_matches,status,USER-DEFINED,NO
+mentorship_matches,notes,text,YES
+mentorship_matches,created_at,timestamp without time zone,NO
+mentorship_matches,updated_at,timestamp without time zone,NO
+menu_items,id,uuid,NO
+menu_items,tenant_id,uuid,NO
+menu_items,name,character varying,NO
+menu_items,description,text,YES
+menu_items,dietary_tags,character varying,YES
+menu_items,created_at,timestamp without time zone,NO
+menu_items,updated_at,timestamp without time zone,NO
+migrations,id,integer,NO
+migrations,timestamp,bigint,NO
+migrations,name,character varying,NO
+parent_student_links,id,uuid,NO
+parent_student_links,tenant_id,uuid,NO
+parent_student_links,parent_user_id,uuid,NO
+parent_student_links,student_id,uuid,NO
+parent_student_links,created_at,timestamp without time zone,NO
+payroll_runs,id,uuid,NO
+payroll_runs,tenant_id,uuid,NO
+payroll_runs,month,integer,NO
+payroll_runs,year,integer,NO
+payroll_runs,status,USER-DEFINED,NO
+payroll_runs,processed_date,date,YES
+payroll_runs,bank_file_generated_at,timestamp without time zone,YES
+payroll_runs,created_at,timestamp without time zone,NO
+payroll_runs,updated_at,timestamp without time zone,NO
+payroll_settings,id,uuid,NO
+payroll_settings,tenant_id,uuid,NO
+payroll_settings,professional_tax_amount,numeric,NO
+payroll_settings,created_at,timestamp without time zone,NO
+payroll_settings,updated_at,timestamp without time zone,NO
+payslips,id,uuid,NO
+payslips,tenant_id,uuid,NO
+payslips,payroll_run_id,uuid,NO
+payslips,employee_id,uuid,NO
+payslips,basic_salary,numeric,NO
+payslips,hra,numeric,NO
+payslips,special_allowance,numeric,NO
+payslips,other_allowances,numeric,NO
+payslips,gross_salary,numeric,NO
+payslips,pf_employee,numeric,NO
+payslips,pf_employer,numeric,NO
+payslips,esi_employee,numeric,NO
+payslips,esi_employer,numeric,NO
+payslips,professional_tax,numeric,NO
+payslips,bonuses,numeric,NO
+payslips,overtime,numeric,NO
+payslips,reimbursements,numeric,NO
+payslips,loan_deduction,numeric,NO
+payslips,net_salary,numeric,NO
+payslips,created_at,timestamp without time zone,NO
+payslips,updated_at,timestamp without time zone,NO
+performance_review_cycles,id,uuid,NO
+performance_review_cycles,tenant_id,uuid,NO
+performance_review_cycles,cycle_name,character varying,NO
+performance_review_cycles,start_date,date,NO
+performance_review_cycles,end_date,date,NO
+performance_review_cycles,status,USER-DEFINED,NO
+performance_review_cycles,created_at,timestamp without time zone,NO
+performance_review_cycles,updated_at,timestamp without time zone,NO
+performance_reviews,id,uuid,NO
+performance_reviews,tenant_id,uuid,NO
+performance_reviews,cycle_id,uuid,NO
+performance_reviews,employee_id,uuid,NO
+performance_reviews,reviewer_id,uuid,NO
+performance_reviews,reviewer_type,USER-DEFINED,NO
+performance_reviews,rating,integer,NO
+performance_reviews,comments,text,YES
+performance_reviews,calibrated_rating,integer,YES
+performance_reviews,created_at,timestamp without time zone,NO
+performance_reviews,updated_at,timestamp without time zone,NO
+procurement_requests,id,uuid,NO
+procurement_requests,tenant_id,uuid,NO
+procurement_requests,item_id,uuid,NO
+procurement_requests,campus_id,uuid,NO
+procurement_requests,requested_by,uuid,NO
+procurement_requests,quantity_requested,integer,NO
+procurement_requests,status,USER-DEFINED,NO
+procurement_requests,requested_date,date,NO
+procurement_requests,approved_by,uuid,YES
+procurement_requests,approval_date,date,YES
+procurement_requests,notes,text,YES
+procurement_requests,created_at,timestamp without time zone,NO
+procurement_requests,updated_at,timestamp without time zone,NO
+roles,id,uuid,NO
+roles,tenant_id,uuid,YES
+roles,name,character varying,NO
+roles,is_system_role,boolean,NO
+roles,permissions,jsonb,NO
+roles,created_at,timestamp without time zone,NO
+roles,updated_at,timestamp without time zone,NO
+route_assignments,id,uuid,NO
+route_assignments,tenant_id,uuid,NO
+route_assignments,route_id,uuid,NO
+route_assignments,vehicle_id,uuid,NO
+route_assignments,driver_id,uuid,NO
+route_assignments,academic_year_id,uuid,NO
+route_assignments,created_at,timestamp without time zone,NO
+route_assignments,updated_at,timestamp without time zone,NO
+route_stops,id,uuid,NO
+route_stops,tenant_id,uuid,NO
+route_stops,route_id,uuid,NO
+route_stops,name,character varying,NO
+route_stops,sequence_order,integer,NO
+route_stops,latitude,numeric,YES
+route_stops,longitude,numeric,YES
+route_stops,created_at,timestamp without time zone,NO
+route_stops,updated_at,timestamp without time zone,NO
+routes,id,uuid,NO
+routes,tenant_id,uuid,NO
+routes,name,character varying,NO
+routes,description,text,YES
+routes,created_at,timestamp without time zone,NO
+routes,updated_at,timestamp without time zone,NO
+salary_structures,id,uuid,NO
+salary_structures,tenant_id,uuid,NO
+salary_structures,employee_id,uuid,NO
+salary_structures,basic_salary,numeric,NO
+salary_structures,hra,numeric,NO
+salary_structures,special_allowance,numeric,NO
+salary_structures,other_allowances,numeric,NO
+salary_structures,effective_from,date,NO
+salary_structures,bank_account_number,character varying,YES
+salary_structures,bank_ifsc_code,character varying,YES
+salary_structures,bank_account_holder_name,character varying,YES
+salary_structures,created_at,timestamp without time zone,NO
+salary_structures,updated_at,timestamp without time zone,NO
+school_classes,id,uuid,NO
+school_classes,tenant_id,uuid,NO
+school_classes,campus_id,uuid,NO
+school_classes,academic_year_id,uuid,NO
+school_classes,grade_level,character varying,NO
+school_classes,section,character varying,YES
+school_classes,class_teacher_id,uuid,YES
+school_classes,created_at,timestamp without time zone,NO
+school_classes,updated_at,timestamp without time zone,NO
+screening_campaigns,id,uuid,NO
+screening_campaigns,tenant_id,uuid,NO
+screening_campaigns,name,character varying,NO
+screening_campaigns,screening_type,USER-DEFINED,NO
+screening_campaigns,campaign_date,date,NO
+screening_campaigns,description,text,YES
+screening_campaigns,created_at,timestamp without time zone,NO
+screening_campaigns,updated_at,timestamp without time zone,NO
+screening_results,id,uuid,NO
+screening_results,tenant_id,uuid,NO
+screening_results,campaign_id,uuid,NO
+screening_results,student_id,uuid,NO
+screening_results,result_summary,text,YES
+screening_results,flagged_for_followup,boolean,NO
+screening_results,recorded_by,uuid,NO
+screening_results,created_at,timestamp without time zone,NO
+screening_results,updated_at,timestamp without time zone,NO
+staff_attendance_records,id,uuid,NO
+staff_attendance_records,tenant_id,uuid,NO
+staff_attendance_records,employee_id,uuid,NO
+staff_attendance_records,date,date,NO
+staff_attendance_records,status,USER-DEFINED,NO
+staff_attendance_records,created_at,timestamp without time zone,NO
+staff_attendance_records,updated_at,timestamp without time zone,NO
+staff_certifications,id,uuid,NO
+staff_certifications,tenant_id,uuid,NO
+staff_certifications,employee_id,uuid,NO
+staff_certifications,certification_name,character varying,NO
+staff_certifications,issued_date,date,NO
+staff_certifications,expiry_date,date,YES
+staff_certifications,created_at,timestamp without time zone,NO
+staff_certifications,updated_at,timestamp without time zone,NO
+stock_transactions,id,uuid,NO
+stock_transactions,tenant_id,uuid,NO
+stock_transactions,item_id,uuid,NO
+stock_transactions,campus_id,uuid,NO
+stock_transactions,transaction_type,USER-DEFINED,NO
+stock_transactions,quantity,integer,NO
+stock_transactions,transaction_date,date,NO
+stock_transactions,recorded_by,uuid,NO
+stock_transactions,notes,text,YES
+stock_transactions,created_at,timestamp without time zone,NO
+stock_transactions,updated_at,timestamp without time zone,NO
+student_dietary_restrictions,id,uuid,NO
+student_dietary_restrictions,tenant_id,uuid,NO
+student_dietary_restrictions,student_id,uuid,NO
+student_dietary_restrictions,restriction_type,USER-DEFINED,NO
+student_dietary_restrictions,details,text,NO
+student_dietary_restrictions,recorded_by,uuid,NO
+student_dietary_restrictions,created_at,timestamp without time zone,NO
+student_dietary_restrictions,updated_at,timestamp without time zone,NO
+student_elective_selections,id,uuid,NO
+student_elective_selections,tenant_id,uuid,NO
+student_elective_selections,student_id,uuid,NO
+student_elective_selections,subject_id,uuid,NO
+student_elective_selections,academic_year_id,uuid,NO
+student_elective_selections,created_at,timestamp without time zone,NO
+student_elective_selections,updated_at,timestamp without time zone,NO
+student_health_profiles,id,uuid,NO
+student_health_profiles,tenant_id,uuid,NO
+student_health_profiles,student_id,uuid,NO
+student_health_profiles,blood_group,USER-DEFINED,NO
+student_health_profiles,allergies,text,YES
+student_health_profiles,chronic_conditions,text,YES
+student_health_profiles,updated_by,uuid,NO
+student_health_profiles,created_at,timestamp without time zone,NO
+student_health_profiles,updated_at,timestamp without time zone,NO
+student_transport_assignments,id,uuid,NO
+student_transport_assignments,tenant_id,uuid,NO
+student_transport_assignments,student_id,uuid,NO
+student_transport_assignments,route_id,uuid,NO
+student_transport_assignments,stop_id,uuid,NO
+student_transport_assignments,academic_year_id,uuid,NO
+student_transport_assignments,created_at,timestamp without time zone,NO
+student_transport_assignments,updated_at,timestamp without time zone,NO
+students,id,uuid,NO
+students,tenant_id,uuid,NO
+students,campus_id,uuid,NO
+students,admission_number,character varying,NO
+students,first_name,character varying,NO
+students,last_name,character varying,NO
+students,date_of_birth,date,NO
+students,gender,USER-DEFINED,NO
+students,grade_level,character varying,NO
+students,section,character varying,YES
+students,academic_year_id,uuid,NO
+students,status,USER-DEFINED,NO
+students,enrollment_date,date,NO
+students,guardian_name,character varying,NO
+students,guardian_phone,character varying,NO
+students,guardian_email,character varying,YES
+students,emergency_contact_name,character varying,YES
+students,emergency_contact_phone,character varying,YES
+students,medical_notes,text,YES
+students,photo_url,character varying,YES
+students,created_at,timestamp without time zone,NO
+students,updated_at,timestamp without time zone,NO
+students,school_class_id,uuid,YES
+students,roll_number,integer,YES
+subjects,id,uuid,NO
+subjects,tenant_id,uuid,NO
+subjects,name,character varying,NO
+subjects,code,character varying,NO
+subjects,description,text,YES
+subjects,created_at,timestamp without time zone,NO
+subjects,updated_at,timestamp without time zone,NO
+subjects,is_elective,boolean,NO
+subjects,elective_group,character varying,YES
+subjects,deleted_at,timestamp with time zone,YES
+succession_plans,id,uuid,NO
+succession_plans,tenant_id,uuid,NO
+succession_plans,position_employee_id,uuid,NO
+succession_plans,successor_employee_id,uuid,YES
+succession_plans,readiness_level,USER-DEFINED,YES
+succession_plans,notes,text,YES
+succession_plans,created_at,timestamp without time zone,NO
+succession_plans,updated_at,timestamp without time zone,NO
+teacher_subject_specializations,id,uuid,NO
+teacher_subject_specializations,tenant_id,uuid,NO
+teacher_subject_specializations,teacher_id,uuid,NO
+teacher_subject_specializations,subject_id,uuid,NO
+teacher_subject_specializations,created_at,timestamp without time zone,NO
+teacher_subject_specializations,updated_at,timestamp without time zone,NO
+tenant_feature_toggles,id,uuid,NO
+tenant_feature_toggles,tenant_id,uuid,NO
+tenant_feature_toggles,feature_key,character varying,NO
+tenant_feature_toggles,enabled,boolean,NO
+tenant_feature_toggles,updated_by,uuid,YES
+tenant_feature_toggles,created_at,timestamp without time zone,NO
+tenant_feature_toggles,updated_at,timestamp without time zone,NO
+tenants,id,uuid,NO
+tenants,school_name,character varying,NO
+tenants,subdomain,character varying,NO
+tenants,logo_url,character varying,YES
+tenants,primary_color,character varying,NO
+tenants,status,USER-DEFINED,NO
+tenants,created_at,timestamp without time zone,NO
+tenants,updated_at,timestamp without time zone,NO
+timetable_slots,id,uuid,NO
+timetable_slots,tenant_id,uuid,NO
+timetable_slots,school_class_id,uuid,NO
+timetable_slots,subject_id,uuid,NO
+timetable_slots,teacher_id,uuid,NO
+timetable_slots,day_of_week,USER-DEFINED,NO
+timetable_slots,period_number,integer,NO
+timetable_slots,created_at,timestamp without time zone,NO
+timetable_slots,updated_at,timestamp without time zone,NO
+users,id,uuid,NO
+users,tenant_id,uuid,NO
+users,campus_id,uuid,YES
+users,role_id,uuid,NO
+users,name,character varying,NO
+users,email,character varying,NO
+users,phone,character varying,YES
+users,auth_provider,USER-DEFINED,NO
+users,password_hash,character varying,YES
+users,status,USER-DEFINED,NO
+users,created_at,timestamp without time zone,NO
+users,updated_at,timestamp without time zone,NO
+users,student_id,uuid,YES
+vehicle_maintenance_records,id,uuid,NO
+vehicle_maintenance_records,tenant_id,uuid,NO
+vehicle_maintenance_records,vehicle_id,uuid,NO
+vehicle_maintenance_records,maintenance_type,USER-DEFINED,NO
+vehicle_maintenance_records,description,text,NO
+vehicle_maintenance_records,scheduled_date,date,NO
+vehicle_maintenance_records,completed_date,date,YES
+vehicle_maintenance_records,cost,numeric,YES
+vehicle_maintenance_records,vendor_name,character varying,YES
+vehicle_maintenance_records,status,USER-DEFINED,NO
+vehicle_maintenance_records,created_at,timestamp without time zone,NO
+vehicle_maintenance_records,updated_at,timestamp without time zone,NO
+vehicles,id,uuid,NO
+vehicles,tenant_id,uuid,NO
+vehicles,campus_id,uuid,NO
+vehicles,registration_number,character varying,NO
+vehicles,model,character varying,YES
+vehicles,capacity,integer,NO
+vehicles,status,USER-DEFINED,NO
+vehicles,created_at,timestamp without time zone,NO
+vehicles,updated_at,timestamp without time zone,NO

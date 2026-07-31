@@ -1,0 +1,30 @@
+# Local dev infra for Phase 0. Not used to run tenants in prod (managed Cloud SQL/RDS there - see blueprint Part 3).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: school-erp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: school_erp
+      POSTGRES_PASSWORD: school_erp
+      POSTGRES_DB: school_erp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school_erp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: school-erp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
