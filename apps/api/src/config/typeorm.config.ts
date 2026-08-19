@@ -1,6 +1,10 @@
+import { config as loadEnv } from 'dotenv';
+loadEnv();
+
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
+
 
 const buildOptions = (config: ConfigService): DataSourceOptions => ({
   type: 'postgres',

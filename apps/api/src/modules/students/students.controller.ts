@@ -23,14 +23,14 @@ export class StudentsController {
   @Get()
   @Permissions({ module: 'student-lifecycle', action: 'view' })
   findAllForTenant(
-    @Query('tenantId') tenantId: string,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('campusId') campusId?: string,
     @Query('gradeLevel') gradeLevel?: string,
     @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('schoolClassId') schoolClassId?: string,
   ) {
-    return this.studentsService.findAllForTenant(tenantId, { campusId, gradeLevel, status, search, schoolClassId });
+    return this.studentsService.findAllForTenant(user.tenantId, { campusId, gradeLevel, status, search, schoolClassId });
   }
 
   @Get(':id')

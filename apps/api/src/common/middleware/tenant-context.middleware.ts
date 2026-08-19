@@ -55,9 +55,11 @@ export class TenantContextMiddleware implements NestMiddleware {
 
     if (!tenantId) {
       const host = req.hostname || '';
+      const isIpAddress = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host);
       const subdomain = host.split('.')[0];
-      if (subdomain && !['localhost', 'api', 'www'].includes(subdomain)) {
-        tenantId = subdomain;
+      if (!isIpAddress && subdomain && !['localhost', 'api', 'www'].includes(subdomain)) {
+        const tenant = await this.tenantsService.findBySubdomain(subdomain);
+        if (tenant) tenantId = tenant.id;
       }
     }
 
