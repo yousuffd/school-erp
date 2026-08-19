@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { typeOrmConfig } from './config/typeorm.config';
 import { TenantContextMiddleware } from './common/middleware/tenant-context.middleware';
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
@@ -46,6 +47,11 @@ import { DiaryModule } from './modules/diary/diary.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // 100 requests per IP per minute by default across the whole API — generous
+    // enough not to interfere with normal use, tight enough to blunt scripted
+    // abuse. /auth/login gets its own much stricter override below, since it's
+    // the highest-value brute-force target.
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60000, limit: 100 }]),
     TypeOrmModule.forRootAsync(typeOrmConfig),
     AuthModule,
     TenantsModule,
@@ -81,6 +87,9 @@ import { DiaryModule } from './modules/diary/diary.module';
     DiaryModule,
   ],
   providers: [
+    // Global rate limit — runs before auth, so it also protects unauthenticated
+    // routes like /auth/login and /tenants (provisioning).
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     // Global auth guard: every route requires a valid JWT unless marked @Public().
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     // Global RBAC guard: checks @Permissions() metadata against the caller's role.
