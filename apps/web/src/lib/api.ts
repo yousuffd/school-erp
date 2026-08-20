@@ -1895,6 +1895,27 @@ export const api = {
       }[];
       totalOutstanding: number;
     }>(`/dashboard/fee-defaulters${classId ? `?classId=${classId}` : ''}`),
+  getAcademicPerformers: (classId?: string) =>
+    request<{
+      top: { studentId: string; name: string; grade: string; section: string; averagePercent: number }[];
+      bottom: { studentId: string; name: string; grade: string; section: string; averagePercent: number }[];
+    }>(`/dashboard/academic-performers${classId ? `?classId=${classId}` : ''}`),
+  getStudentAttendanceExceptions: (classId?: string) =>
+    request<{
+      date: string | null;
+      absent: { studentId: string; name: string; grade: string; section: string }[];
+      onLeave: { studentId: string; name: string; grade: string; section: string }[];
+      pctAbsent: number;
+      pctOnLeave: number;
+    }>(`/dashboard/student-attendance-exceptions${classId ? `?classId=${classId}` : ''}`),
+  getStaffAttendanceExceptions: (department?: string) =>
+    request<{
+      date: string | null;
+      absent: { employeeId: string; name: string; department: string }[];
+      onLeave: { employeeId: string; name: string; department: string }[];
+      pctAbsent: number;
+      pctOnLeave: number;
+    }>(`/dashboard/staff-attendance-exceptions${department ? `?department=${encodeURIComponent(department)}` : ''}`),
 };
 
 export { ApiError };

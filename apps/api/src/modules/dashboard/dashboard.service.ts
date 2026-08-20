@@ -112,12 +112,12 @@ export class DashboardService {
         type: 'attendance',
         title: 'ATTENDANCE EXCEPTION',
         body: `${lowClasses.map((c) => `${c.grade}${c.section}`).join(', ')} ${lowClasses.length === 1 ? 'is' : 'are'} below 85% this month.`,
-        actionLabel: 'View affected sections',
+        actionLabel: 'View affected students',
         // Deep-links to the single worst-affected class — lowClasses is
         // already sorted ascending by pct, so [0] is the most urgent one.
         // Not all three (the page shows one class at a time), but landing
         // on the right starting point beats a generic, unfiltered page.
-        actionHref: `/attendance?grade=${encodeURIComponent(lowClasses[0].grade)}&section=${encodeURIComponent(lowClasses[0].section)}`,
+        actionHref: `/student-attendance-exceptions?classId=${encodeURIComponent(lowClasses[0].classId)}`,
       });
     }
     if (worstDrop) {
@@ -143,8 +143,8 @@ export class DashboardService {
         type: 'staff',
         title: 'STAFF ACTION',
         body: `${onLeaveToday} staff ${onLeaveToday === 1 ? 'member is' : 'members are'} on leave today.`,
-        actionLabel: 'View staff attendance',
-        actionHref: '/hr-management?tab=attendance',
+        actionLabel: 'View staff on leave',
+        actionHref: '/staff-attendance-exceptions',
       });
     }
 
@@ -204,7 +204,7 @@ export class DashboardService {
     today: string,
     prevMonthStart: string,
     prevMonthEnd: string,
-  ): Promise<[Metric, { grade: string; section: string }[]]> {
+  ): Promise<[Metric, { classId: string; grade: string; section: string }[]]> {
     const currentRows: { total: string; present: string }[] = await manager.query(
       `SELECT COUNT(*) as total,
               SUM(CASE WHEN status IN ('present','late') THEN 1 ELSE 0 END) as present
@@ -228,8 +228,8 @@ export class DashboardService {
     const currentPct = currentTotal > 0 ? (currentPresent / currentTotal) * 100 : 0;
     const prevPct = prevTotal > 0 ? (prevPresent / prevTotal) * 100 : 0;
 
-    const lowClassRows: { grade_level: string; section: string; pct: string }[] = await manager.query(
-      `SELECT sc.grade_level, sc.section,
+    const lowClassRows: { class_id: string; grade_level: string; section: string; pct: string }[] = await manager.query(
+      `SELECT sc.id as class_id, sc.grade_level, sc.section,
               (SUM(CASE WHEN ar.status IN ('present','late') THEN 1 ELSE 0 END)::float / COUNT(*)) * 100 as pct
        FROM attendance_records ar
        JOIN school_classes sc ON sc.id = ar.school_class_id
@@ -239,7 +239,7 @@ export class DashboardService {
        ORDER BY pct ASC`,
       [monthStart, today],
     );
-    const lowClasses = lowClassRows.map((r) => ({ grade: r.grade_level, section: r.section }));
+    const lowClasses = lowClassRows.map((r) => ({ classId: r.class_id, grade: r.grade_level, section: r.section }));
 
     const metric: Metric = {
       label: 'Student Attendance',
@@ -342,6 +342,12 @@ export class DashboardService {
         : currentPassRate >= TARGETS.passRate
           ? 'Outcome improving'
           : 'Below target',
+      // Unlike Fee Collection, this link is always shown, regardless of
+      // the value — a 100% pass rate is exactly the number someone will
+      // want to actually verify, not the case where a link feels
+      // unnecessary.
+      actionLabel: 'View top & bottom performers',
+      actionHref: '/academic-performers',
     };
     return [metric, worstDrop];
   }
@@ -617,5 +623,178 @@ export class DashboardService {
     const totalOutstanding = Math.round(students.reduce((sum, s) => sum + s.balance, 0) * 100) / 100;
 
     return { students, totalOutstanding };
+  }
+
+  /**
+   * Backs the Pass Rate metric card's drill-down. Unlike Fee Collection's
+   * link (conditional on real outstanding balances), this one is always
+   * shown regardless of the pass rate value — a 100% pass rate is exactly
+   * the situation someone will want to actually verify, not the one case
+   * where a drill-down feels unnecessary.
+   */
+  async getAcademicPerformers(classId?: string): Promise<{
+    top: { studentId: string; name: string; grade: string; section: string; averagePercent: number }[];
+    bottom: { studentId: string; name: string; grade: string; section: string; averagePercent: number }[];
+  }> {
+    const manager = scopedRepo(this.examResultRepo, ExamResult).manager;
+
+    const baseQuery = `
+      SELECT s.id as student_id, s.first_name, s.last_name, s.grade_level, s.section,
+             AVG((er.marks_obtained::numeric / e.max_marks::numeric) * 100) as avg_pct
+      FROM exam_results er
+      JOIN exams e ON e.id = er.exam_id
+      JOIN students s ON s.id = er.student_id
+      WHERE er.marks_obtained IS NOT NULL
+        AND ($1::uuid IS NULL OR s.school_class_id = $1::uuid)
+      GROUP BY s.id, s.first_name, s.last_name, s.grade_level, s.section
+    `;
+
+    type Row = { student_id: string; first_name: string; last_name: string; grade_level: string; section: string; avg_pct: string };
+
+    const topRows: Row[] = await manager.query(`${baseQuery} ORDER BY avg_pct DESC LIMIT 10`, [classId ?? null]);
+    const bottomRows: Row[] = await manager.query(`${baseQuery} ORDER BY avg_pct ASC LIMIT 10`, [classId ?? null]);
+
+    const toEntry = (r: Row) => ({
+      studentId: r.student_id,
+      name: `${r.first_name} ${r.last_name}`,
+      grade: r.grade_level,
+      section: r.section,
+      averagePercent: Math.round(parseFloat(r.avg_pct) * 10) / 10,
+    });
+
+    return { top: topRows.map(toEntry), bottom: bottomRows.map(toEntry) };
+  }
+
+  /**
+   * Backs the Student Attendance exception card's drill-down — who is
+   * actually absent/excused on the most recent day with data (not
+   * literally "today", since that could be a weekend or a day nobody's
+   * marked attendance yet — same reasoning as computeTeacherPresence's
+   * "latest date" approach), plus % absent and % excused over the current
+   * month for context. Optional classId narrows to one class.
+   */
+  async getStudentAttendanceExceptions(classId?: string): Promise<{
+    date: string | null;
+    absent: { studentId: string; name: string; grade: string; section: string }[];
+    onLeave: { studentId: string; name: string; grade: string; section: string }[];
+    pctAbsent: number;
+    pctOnLeave: number;
+  }> {
+    const manager = scopedRepo(this.attendanceRepo, AttendanceRecord).manager;
+
+    const dateRows: { latest: string }[] = await manager.query(
+      `SELECT MAX(date)::text as latest FROM attendance_records`,
+    );
+    const latestDate = dateRows[0]?.latest ?? null;
+    if (!latestDate) {
+      return { date: null, absent: [], onLeave: [], pctAbsent: 0, pctOnLeave: 0 };
+    }
+
+    const exceptionRows: { student_id: string; first_name: string; last_name: string; grade_level: string; section: string; status: string }[] =
+      await manager.query(
+        `SELECT s.id as student_id, s.first_name, s.last_name, s.grade_level, s.section, ar.status
+         FROM attendance_records ar
+         JOIN students s ON s.id = ar.student_id
+         WHERE ar.date = $1 AND ar.status IN ('absent', 'excused')
+           AND ($2::uuid IS NULL OR s.school_class_id = $2::uuid)
+         ORDER BY ar.status, s.first_name`,
+        [latestDate, classId ?? null],
+      );
+
+    const toEntry = (r: (typeof exceptionRows)[number]) => ({
+      studentId: r.student_id,
+      name: `${r.first_name} ${r.last_name}`,
+      grade: r.grade_level,
+      section: r.section,
+    });
+    const absent = exceptionRows.filter((r) => r.status === 'absent').map(toEntry);
+    const onLeave = exceptionRows.filter((r) => r.status === 'excused').map(toEntry);
+
+    const now = new Date();
+    const monthStart = toDateStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    const monthRows: { status: string; cnt: string }[] = await manager.query(
+      `SELECT ar.status, COUNT(*) as cnt
+       FROM attendance_records ar
+       JOIN students s ON s.id = ar.student_id
+       WHERE ar.date >= $1 AND ar.date <= $2
+         AND ($3::uuid IS NULL OR s.school_class_id = $3::uuid)
+       GROUP BY ar.status`,
+      [monthStart, latestDate, classId ?? null],
+    );
+    const totalThisMonth = monthRows.reduce((sum, r) => sum + parseInt(r.cnt, 10), 0);
+    const absentThisMonth = parseInt(monthRows.find((r) => r.status === 'absent')?.cnt ?? '0', 10);
+    const excusedThisMonth = parseInt(monthRows.find((r) => r.status === 'excused')?.cnt ?? '0', 10);
+
+    return {
+      date: latestDate,
+      absent,
+      onLeave,
+      pctAbsent: totalThisMonth > 0 ? Math.round((absentThisMonth / totalThisMonth) * 1000) / 10 : 0,
+      pctOnLeave: totalThisMonth > 0 ? Math.round((excusedThisMonth / totalThisMonth) * 1000) / 10 : 0,
+    };
+  }
+
+  /**
+   * Same reasoning as getStudentAttendanceExceptions, for staff. Optional
+   * department narrows the list (Academics / Administration / Support
+   * Staff, per the seeded departments).
+   */
+  async getStaffAttendanceExceptions(department?: string): Promise<{
+    date: string | null;
+    absent: { employeeId: string; name: string; department: string }[];
+    onLeave: { employeeId: string; name: string; department: string }[];
+    pctAbsent: number;
+    pctOnLeave: number;
+  }> {
+    const manager = scopedRepo(this.staffAttendanceRepo, StaffAttendanceRecord).manager;
+
+    const dateRows: { latest: string }[] = await manager.query(
+      `SELECT MAX(date)::text as latest FROM staff_attendance_records`,
+    );
+    const latestDate = dateRows[0]?.latest ?? null;
+    if (!latestDate) {
+      return { date: null, absent: [], onLeave: [], pctAbsent: 0, pctOnLeave: 0 };
+    }
+
+    const exceptionRows: { employee_id: string; name: string; department: string; status: string }[] = await manager.query(
+      `SELECT e.id as employee_id, e.name, e.department, sar.status
+       FROM staff_attendance_records sar
+       JOIN employees e ON e.id = sar.employee_id
+       WHERE sar.date = $1 AND sar.status IN ('absent', 'on_leave')
+         AND ($2::text IS NULL OR e.department = $2::text)
+       ORDER BY sar.status, e.name`,
+      [latestDate, department ?? null],
+    );
+
+    const toEntry = (r: (typeof exceptionRows)[number]) => ({
+      employeeId: r.employee_id,
+      name: r.name,
+      department: r.department,
+    });
+    const absent = exceptionRows.filter((r) => r.status === 'absent').map(toEntry);
+    const onLeave = exceptionRows.filter((r) => r.status === 'on_leave').map(toEntry);
+
+    const now = new Date();
+    const monthStart = toDateStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    const monthRows: { status: string; cnt: string }[] = await manager.query(
+      `SELECT sar.status, COUNT(*) as cnt
+       FROM staff_attendance_records sar
+       JOIN employees e ON e.id = sar.employee_id
+       WHERE sar.date >= $1 AND sar.date <= $2
+         AND ($3::text IS NULL OR e.department = $3::text)
+       GROUP BY sar.status`,
+      [monthStart, latestDate, department ?? null],
+    );
+    const totalThisMonth = monthRows.reduce((sum, r) => sum + parseInt(r.cnt, 10), 0);
+    const absentThisMonth = parseInt(monthRows.find((r) => r.status === 'absent')?.cnt ?? '0', 10);
+    const onLeaveThisMonth = parseInt(monthRows.find((r) => r.status === 'on_leave')?.cnt ?? '0', 10);
+
+    return {
+      date: latestDate,
+      absent,
+      onLeave,
+      pctAbsent: totalThisMonth > 0 ? Math.round((absentThisMonth / totalThisMonth) * 1000) / 10 : 0,
+      pctOnLeave: totalThisMonth > 0 ? Math.round((onLeaveThisMonth / totalThisMonth) * 1000) / 10 : 0,
+    };
   }
 }

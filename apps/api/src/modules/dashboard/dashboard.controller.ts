@@ -39,4 +39,22 @@ export class DashboardController {
   getFeeDefaulters(@Query('classId') classId?: string) {
     return this.dashboardService.getFeeDefaulters(classId);
   }
+
+  @Get('academic-performers')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getAcademicPerformers(@Query('classId') classId?: string) {
+    return this.dashboardService.getAcademicPerformers(classId);
+  }
+
+  @Get('student-attendance-exceptions')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getStudentAttendanceExceptions(@Query('classId') classId?: string) {
+    return this.dashboardService.getStudentAttendanceExceptions(classId);
+  }
+
+  @Get('staff-attendance-exceptions')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getStaffAttendanceExceptions(@Query('department') department?: string) {
+    return this.dashboardService.getStaffAttendanceExceptions(department);
+  }
 }
