@@ -22,6 +22,12 @@ interface Metric {
   target: number;
   status: MetricStatus;
   insight: string;
+  /** Drill-down into the metric itself, distinct from the exception cards.
+   * Fee Collection: present only when someone genuinely hasn't paid (not
+   * merely "below the 90% target" — a school can be above target and still
+   * have a handful of unpaid students). */
+  actionLabel?: string;
+  actionHref?: string;
 }
 
 interface ExceptionCard {
@@ -362,6 +368,11 @@ export class DashboardService {
 
     const currentPct = assignedTotal > 0 ? (paidTotal / assignedTotal) * 100 : 0;
     const gapAmount = Math.max(0, Math.round((TARGETS.feeCollection / 100) * assignedTotal - paidTotal));
+    // Distinct from gapAmount (shortfall vs. the 90% target) — this is
+    // whether ANYONE genuinely hasn't paid in full yet. A school can be
+    // above target and still have real defaulters; the drill-down link
+    // should reflect that, not the target comparison.
+    const hasOutstanding = assignedTotal - paidTotal > 0.01;
 
     const metric: Metric = {
       label: 'Fee Collection',
@@ -372,6 +383,7 @@ export class DashboardService {
       target: TARGETS.feeCollection,
       status: statusFor(currentPct, TARGETS.feeCollection),
       insight: gapAmount > 0 ? `₹${gapAmount.toLocaleString('en-IN')} gap to target` : 'On track',
+      ...(hasOutstanding ? { actionLabel: 'View students yet to pay', actionHref: '/fee-defaulters' } : {}),
     };
     return { metric, gapAmount };
   }
@@ -544,5 +556,66 @@ export class DashboardService {
         averagePercent: Math.round(parseFloat(r.avg_pct) * 10) / 10,
       })),
     };
+  }
+
+  /**
+   * Backs the Fee Collection metric card's drill-down — deliberately a
+   * narrow, exception-focused view (who owes money, how much), not the
+   * full fee-management module. Optional classId filters to one class;
+   * omitted, it returns every student with an outstanding balance
+   * school-wide.
+   */
+  async getFeeDefaulters(classId?: string): Promise<{
+    students: {
+      studentId: string;
+      name: string;
+      grade: string;
+      section: string;
+      assigned: number;
+      paid: number;
+      balance: number;
+    }[];
+    totalOutstanding: number;
+  }> {
+    const manager = scopedRepo(this.feeAssignmentRepo, FeeAssignment).manager;
+
+    const rows: {
+      student_id: string;
+      first_name: string;
+      last_name: string;
+      grade_level: string;
+      section: string;
+      assigned: string;
+      paid: string;
+    }[] = await manager.query(
+      `SELECT s.id as student_id, s.first_name, s.last_name, s.grade_level, s.section,
+              COALESCE((SELECT SUM(fc.amount) FROM fee_components fc WHERE fc.fee_structure_id = fa.fee_structure_id), 0) as assigned,
+              COALESCE((SELECT SUM(fp.amount) FROM fee_payments fp WHERE fp.fee_assignment_id = fa.id), 0) as paid
+       FROM fee_assignments fa
+       JOIN students s ON s.id = fa.student_id
+       WHERE ($1::uuid IS NULL OR s.school_class_id = $1::uuid)`,
+      [classId ?? null],
+    );
+
+    const students = rows
+      .map((r) => {
+        const assigned = parseFloat(r.assigned);
+        const paid = parseFloat(r.paid);
+        return {
+          studentId: r.student_id,
+          name: `${r.first_name} ${r.last_name}`,
+          grade: r.grade_level,
+          section: r.section,
+          assigned,
+          paid,
+          balance: Math.round((assigned - paid) * 100) / 100,
+        };
+      })
+      .filter((s) => s.balance > 0)
+      .sort((a, b) => b.balance - a.balance);
+
+    const totalOutstanding = Math.round(students.reduce((sum, s) => sum + s.balance, 0) * 100) / 100;
+
+    return { students, totalOutstanding };
   }
 }

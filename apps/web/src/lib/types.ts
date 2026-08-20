@@ -1472,6 +1472,8 @@ export interface DashboardMetric {
   target: number;
   status: DashboardMetricStatus;
   insight: string;
+  actionLabel?: string;
+  actionHref?: string;
 }
 
 export interface DashboardExceptionCard {

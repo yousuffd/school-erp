@@ -25,6 +25,8 @@ export function MetricCard({
   target,
   status,
   insight,
+  actionLabel,
+  actionHref,
 }: {
   label: string;
   current: number;
@@ -34,6 +36,8 @@ export function MetricCard({
   target: number;
   status: MetricStatus;
   insight: string;
+  actionLabel?: string;
+  actionHref?: string;
 }) {
   const styles = STATUS_STYLES[status];
   const suffix = unit === '%' ? '%' : '';
@@ -71,6 +75,12 @@ export function MetricCard({
       </div>
 
       <div className="border-t border-border pt-3 text-caption text-text-secondary">{insight}</div>
+
+      {actionHref && actionLabel && (
+        <a href={actionHref} className="mt-2 block text-caption font-medium text-accent hover:underline">
+          {actionLabel} →
+        </a>
+      )}
     </div>
   );
 }

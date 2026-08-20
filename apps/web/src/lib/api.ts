@@ -1882,6 +1882,19 @@ export const api = {
       topStudents: { name: string; averagePercent: number }[];
       topByGrade: { grade: string; name: string; averagePercent: number }[];
     }>('/dashboard/exam-performance'),
+  getFeeDefaulters: (classId?: string) =>
+    request<{
+      students: {
+        studentId: string;
+        name: string;
+        grade: string;
+        section: string;
+        assigned: number;
+        paid: number;
+        balance: number;
+      }[];
+      totalOutstanding: number;
+    }>(`/dashboard/fee-defaulters${classId ? `?classId=${classId}` : ''}`),
 };
 
 export { ApiError };

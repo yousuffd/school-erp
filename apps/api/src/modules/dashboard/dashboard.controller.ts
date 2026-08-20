@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Permissions } from '../../common/decorators/permissions.decorator';
 import { DashboardService } from './dashboard.service';
@@ -32,5 +32,11 @@ export class DashboardController {
   @Permissions({ module: 'core-admin', action: 'view' })
   getExamPerformance() {
     return this.dashboardService.getExamPerformance();
+  }
+
+  @Get('fee-defaulters')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getFeeDefaulters(@Query('classId') classId?: string) {
+    return this.dashboardService.getFeeDefaulters(classId);
   }
 }
