@@ -52,10 +52,20 @@ function assertSecureJwtSecrets(config: ConfigService) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
   assertSecureJwtSecrets(config);
+
+  // Explicit allow-list, not cors:true — the old setting let any website's
+  // JavaScript make authenticated requests using a logged-in user's browser
+  // session. CORS_ALLOWED_ORIGINS is comma-separated for multiple environments
+  // (e.g. staging + prod URLs); defaults to the local web app's dev port.
+  const allowedOrigins = config
+    .get<string>('CORS_ALLOWED_ORIGINS', 'http://localhost:3001')
+    .split(',')
+    .map((origin) => origin.trim());
+  app.enableCors({ origin: allowedOrigins, credentials: true });
 
   app.use(helmet());
   app.setGlobalPrefix(config.get<string>('API_GLOBAL_PREFIX', 'api/v1'));
