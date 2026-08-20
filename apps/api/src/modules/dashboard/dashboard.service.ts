@@ -107,6 +107,10 @@ export class DashboardService {
         title: 'ATTENDANCE EXCEPTION',
         body: `${lowClasses.map((c) => `${c.grade}${c.section}`).join(', ')} ${lowClasses.length === 1 ? 'is' : 'are'} below 85% this month.`,
         actionLabel: 'View affected sections',
+        // Deep-links to the single worst-affected class — lowClasses is
+        // already sorted ascending by pct, so [0] is the most urgent one.
+        // Not all three (the page shows one class at a time), but landing
+        // on the right starting point beats a generic, unfiltered page.
         actionHref: `/attendance?grade=${encodeURIComponent(lowClasses[0].grade)}&section=${encodeURIComponent(lowClasses[0].section)}`,
       });
     }
@@ -420,5 +424,93 @@ export class DashboardService {
       insight: onLeaveToday > 0 ? `${onLeaveToday} substitution${onLeaveToday === 1 ? '' : 's'} today` : 'Full attendance',
     };
     return [metric, onLeaveToday];
+  }
+
+  /**
+   * Replaces a genuinely broken pattern in AdminDashboard.tsx: 6 classes x
+   * 10 days = 60 individual HTTP requests fired via Promise.all on every
+   * page load. That's fine with a handful of records, but at real data
+   * volume it reliably tripped the Day 3 rate limiter (429s across the
+   * board), and the chart's own silent .catch() hid the failure entirely
+   * — it just looked like "no data," not "the requests got throttled."
+   * One grouped query instead of 60 round-trips.
+   */
+    async getAttendanceTrend(days: number = 10): Promise<{ name: string; present: number; absent: number; late: number; excused: number }[]> {
+    const manager = scopedRepo(this.attendanceRepo, AttendanceRecord).manager;
+
+    const weekdays: string[] = [];
+    const cursor = new Date();
+    while (weekdays.length < days) {
+      const day = cursor.getDay();
+      if (day !== 0 && day !== 6) weekdays.unshift(toDateStr(cursor));
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    const rows: { date: string; status: string; cnt: string }[] = await manager.query(
+      `SELECT date::text as date, status, COUNT(*) as cnt
+       FROM attendance_records
+       WHERE date = ANY($1::date[])
+       GROUP BY date, status`,
+      [weekdays],
+    );
+
+    const byDate = new Map<string, { present: number; absent: number; late: number; excused: number }>();
+    for (const day of weekdays) byDate.set(day, { present: 0, absent: 0, late: 0, excused: 0 });
+    for (const r of rows) {
+      const bucket = byDate.get(r.date);
+      if (!bucket) continue;
+      const count = parseInt(r.cnt, 10);
+      if (r.status === 'present') bucket.present = count;
+      else if (r.status === 'absent') bucket.absent = count;
+      else if (r.status === 'late') bucket.late = count;
+      else if (r.status === 'excused') bucket.excused = count;
+    }
+
+    return weekdays.map((day) => ({
+      name: new Date(`${day}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      ...byDate.get(day)!,
+    }));
+  }
+
+  /**
+   * Same reasoning as getAttendanceTrend — replaces 1-request-per-exam
+   * (48 requests for this seed data alone) with two grouped queries.
+   * Returns up to 10 top students by average score, not just 1 — the
+   * frontend can show just the top one today and use the same endpoint
+   * for a full leaderboard later without a second backend change.
+   */
+    async getExamPerformance(): Promise<{ scoreByGrade: { name: string; value: number }[]; topStudents: { name: string; averagePercent: number }[] }> {
+    const manager = scopedRepo(this.examResultRepo, ExamResult).manager;
+
+    const gradeRows: { grade_level: string; avg_pct: string }[] = await manager.query(
+      `SELECT sc.grade_level,
+              AVG((er.marks_obtained::numeric / e.max_marks::numeric) * 100) as avg_pct
+       FROM exam_results er
+       JOIN exams e ON e.id = er.exam_id
+       JOIN school_classes sc ON sc.id = e.school_class_id
+       WHERE er.marks_obtained IS NOT NULL
+       GROUP BY sc.grade_level
+       ORDER BY sc.grade_level`,
+    );
+
+    const studentRows: { first_name: string; last_name: string; avg_pct: string }[] = await manager.query(
+      `SELECT s.first_name, s.last_name,
+              AVG((er.marks_obtained::numeric / e.max_marks::numeric) * 100) as avg_pct
+       FROM exam_results er
+       JOIN exams e ON e.id = er.exam_id
+       JOIN students s ON s.id = er.student_id
+       WHERE er.marks_obtained IS NOT NULL
+       GROUP BY er.student_id, s.first_name, s.last_name
+       ORDER BY avg_pct DESC
+       LIMIT 10`,
+    );
+
+    return {
+      scoreByGrade: gradeRows.map((r) => ({ name: r.grade_level, value: Math.round(parseFloat(r.avg_pct) * 10) / 10 })),
+      topStudents: studentRows.map((r) => ({
+        name: `${r.first_name} ${r.last_name}`,
+        averagePercent: Math.round(parseFloat(r.avg_pct) * 10) / 10,
+      })),
+    };
   }
 }

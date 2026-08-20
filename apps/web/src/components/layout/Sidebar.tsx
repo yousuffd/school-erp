@@ -27,7 +27,7 @@ export function Sidebar() {
   // per-tenant toggle. Both concepts happen to share the word 'enabled'
   // but govern completely different things; kept in separate state/checks
   // to avoid conflating them.
-  const [disabledFeatureKeys, setDisabledFeatureKeys] = useState<Set<string>>(new Set());
+    const [disabledFeatureKeys, setDisabledFeatureKeys] = useState<Set<string>>(new Set());
   useEffect(() => {
     api
       .getFeatureToggles()
@@ -39,6 +39,22 @@ export function Sidebar() {
         // a failed fetch here should never hide a module that's actually on.
       });
   }, []);
+
+  // Tenant users see their own school's name in the sidebar header instead
+  // of the generic platform brand — Super Admin has no tenantId (genuinely
+  // platform-level, not a missing value), so keeps "SchoolERP" correctly.
+  const [schoolName, setSchoolName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user?.tenantId) return;
+    api
+      .getMyTenant()
+      .then((t) => setSchoolName(t.school_name))
+      .catch(() => {
+        // Fail quiet — falling back to "SchoolERP" is a fine default,
+        // not worth an error banner over a cosmetic header.
+      });
+  }, [user?.tenantId]);
+
   function toggleGroup(group: string) {
     setCollapsedGroups((prev) => {
       const next = new Set(prev);
@@ -158,7 +174,7 @@ export function Sidebar() {
         )}
       >
       <div className="flex h-16 items-center px-5">
-        <span className="text-body-lg font-bold text-sidebar-text-active">SchoolERP</span>
+                <span className="text-card-title font-bold text-sidebar-text-active">{schoolName ?? 'SchoolERP'}</span>
       </div>
 
       <nav className="sidebar-scroll flex-1 space-y-0.5 overflow-y-auto px-3 py-2">

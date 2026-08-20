@@ -16,7 +16,6 @@ import { AttendanceStackedBarChart, type AttendanceBarDatum } from '@/components
 import { groupCounts } from '@/lib/chart-utils';
 import { api } from '@/lib/api';
 import { Activity, Award, AcademicYear, Campus, Role, SchoolEvent, Student, User, PrincipalSummary } from '@/lib/types';
-import { toLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;
@@ -46,24 +45,15 @@ interface Props {
  * category is 'sport' — computed client-side from getEvents/getActivities
  * (both real, already-existing bulk endpoints), not fabricated.
  *
- * Exam averages need one getExamResults() call per exam (no bulk
- * "all results for a tenant" endpoint exists) — fine at today's data
- * scale, but if a school accumulates a large number of exams this will
- * mean a lot of parallel requests on dashboard load. Worth a dedicated
- * backend aggregate endpoint if that ever becomes a real slowdown.
+  * Attendance and exam-performance data both come from dedicated backend
+ * aggregate endpoints (/dashboard/attendance-trend, /dashboard/exam-
+ * performance) rather than one request per class-per-day or per-exam —
+ * the original per-record fetching pattern reliably tripped the Day 3
+ * rate limiter at real data volume (60 concurrent requests for a 6-class,
+ * 10-day attendance window alone), and failed silently since the
+ * catch-and-blank-state error handling gave no visible signal that
+ * anything had gone wrong.
  */
-function getLastNWeekdays(n: number): string[] {
-  const dates: string[] = [];
-  const cursor = new Date();
-  while (dates.length < n) {
-    const day = cursor.getDay();
-    if (day !== 0 && day !== 6) {
-      dates.unshift(toLocalDateStr(cursor));
-    }
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return dates;
-}
 
 function sum(rows: { name: string; value: number }[]): number {
   return rows.reduce((total, r) => total + r.value, 0);
@@ -91,6 +81,7 @@ export function AdminDashboard({ tenantId }: Props) {
 
   const [scoreByGrade, setScoreByGrade] = useState<{ name: string; value: number }[]>([]);
   const [topStudent, setTopStudent] = useState<{ name: string; averagePercent: number } | null>(null);
+  const [topByGrade, setTopByGrade] = useState<{ grade: string; name: string; averagePercent: number }[]>([]);
   const [examsLoading, setExamsLoading] = useState(true);
 
   const [participationByCategory, setParticipationByCategory] = useState<{ name: string; value: number }[]>([]);
@@ -141,37 +132,15 @@ export function AdminDashboard({ tenantId }: Props) {
     let cancelled = false;
     setAttendanceLoading(true);
     api
-      .getClasses(tenantId)
-      .then(async (classList) => {
-        const days = getLastNWeekdays(10);
-        const counts = new Map<string, { present: number; absent: number; late: number; excused: number }>();
-        for (const day of days) {
-          counts.set(day, { present: 0, absent: 0, late: 0, excused: 0 });
-        }
-        await Promise.all(
-          classList.flatMap((cls: { id: string }) =>
-            days.map(async (day) => {
-              const records = await api.getAttendanceForClassOnDate(cls.id, day);
-              const bucket = counts.get(day)!;
-              for (const rec of records) {
-                if (rec.status === 'present') bucket.present += 1;
-                else if (rec.status === 'absent') bucket.absent += 1;
-                else if (rec.status === 'late') bucket.late += 1;
-                else if (rec.status === 'excused') bucket.excused += 1;
-              }
-            })
-          )
-        );
-        if (cancelled) return;
-        setAttendanceByDay(
-          days.map((day) => ({
-            name: new Date(`${day}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            ...counts.get(day)!,
-          }))
-        );
+      .getAttendanceTrend()
+      .then((data) => {
+        if (!cancelled) setAttendanceByDay(data);
       })
-      .catch(() => {
-        if (!cancelled) setAttendanceByDay([]);
+      .catch((err) => {
+        if (!cancelled) {
+          setAttendanceByDay([]);
+          setError(err.message ?? 'Failed to load attendance trend');
+        }
       })
       .finally(() => {
         if (!cancelled) setAttendanceLoading(false);
@@ -188,67 +157,19 @@ export function AdminDashboard({ tenantId }: Props) {
     let cancelled = false;
     setExamsLoading(true);
     api
-      .getExams(tenantId)
-      .then(async (exams) => {
-        const resultLists = await Promise.all(exams.map((exam) => api.getExamResults(exam.id)));
+      .getExamPerformance()
+      .then((data) => {
         if (cancelled) return;
-
-        const examById = new Map(exams.map((e) => [e.id, e]));
-        const studentById = new Map(students.map((s) => [s.id, s]));
-
-        const gradePercents = new Map<string, number[]>();
-        const studentPercents = new Map<string, number[]>();
-
-        resultLists.flat().forEach((result) => {
-          if (result.marks_obtained === undefined || result.marks_obtained === null) return;
-          const exam = examById.get(result.exam_id);
-          if (!exam) return;
-          const maxMarks = parseFloat(exam.max_marks);
-          const obtained = parseFloat(result.marks_obtained);
-          if (!maxMarks || Number.isNaN(obtained)) return;
-          const percent = (obtained / maxMarks) * 100;
-
-          const student = studentById.get(result.student_id);
-          if (student) {
-            const grade = student.grade_level;
-            gradePercents.set(grade, [...(gradePercents.get(grade) ?? []), percent]);
-          }
-          studentPercents.set(result.student_id, [...(studentPercents.get(result.student_id) ?? []), percent]);
-        });
-
-        const avg = (nums: number[]) => nums.reduce((s, n) => s + n, 0) / nums.length;
-
-        setScoreByGrade(
-          Array.from(gradePercents.entries())
-            .map(([grade, percents]) => ({ name: grade, value: Math.round(avg(percents) * 10) / 10 }))
-            .sort((a, b) => a.name.localeCompare(b.name))
-        );
-
-        let best: { studentId: string; averagePercent: number } | null = null;
-        for (const [studentId, percents] of studentPercents.entries()) {
-          const averagePercent = avg(percents);
-          if (!best || averagePercent > best.averagePercent) {
-            best = { studentId, averagePercent };
-          }
-        }
-        if (best) {
-          const student = studentById.get(best.studentId);
-          setTopStudent(
-            student
-              ? {
-                  name: `${student.first_name} ${student.last_name}`,
-                  averagePercent: Math.round(best.averagePercent * 10) / 10,
-                }
-              : null
-          );
-        } else {
-          setTopStudent(null);
-        }
+        setScoreByGrade(data.scoreByGrade);
+        setTopStudent(data.topStudents[0] ?? null);
+        setTopByGrade(data.topByGrade);
       })
-      .catch(() => {
+      .catch((err) => {
         if (!cancelled) {
           setScoreByGrade([]);
           setTopStudent(null);
+          setTopByGrade([]);
+          setError(err.message ?? 'Failed to load exam performance');
         }
       })
       .finally(() => {
@@ -257,7 +178,7 @@ export function AdminDashboard({ tenantId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [tenantId, students]);
+  }, [tenantId]);
 
   // Activities & sports: activity participation by category (roster size
   // per activity, summed by category), and awards traced through to
@@ -447,29 +368,24 @@ export function AdminDashboard({ tenantId }: Props) {
               ) : studentsByGrade.length === 0 ? (
                 <p className="py-10 text-center text-body text-text-secondary">No students yet.</p>
               ) : (
-                <CategoryBarChart data={studentsByGrade} multiColor />
+                <>
+                  <CategoryBarChart data={studentsByGrade} multiColor />
+                  {studentsByStatus.length > 0 && (
+                    <p className="mt-2 text-caption text-text-secondary">
+                      {studentsByStatus.map((s) => `${s.value} ${s.name}`).join(' · ')}
+                    </p>
+                  )}
+                </>
               )}
             </Card>
 
-            <Card title="Students by Status">
-              {loading ? (
-                <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : studentsByStatus.length === 0 ? (
-                <p className="py-10 text-center text-body text-text-secondary">No students yet.</p>
-              ) : (
-                <CategoryDonut data={studentsByStatus} centerLabel="Students" />
-              )}
-            </Card>
-
-            <Card title="Admissions by Stage">
-              {loading ? (
-                <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : admissionsByStage.length === 0 ? (
-                <p className="py-10 text-center text-body text-text-secondary">No admissions in the pipeline.</p>
-              ) : (
+            {/* Hidden entirely rather than shown empty — appears automatically
+                once real admissions data exists, no code change needed. */}
+            {!loading && admissionsByStage.length > 0 && (
+              <Card title="Admissions by Stage">
                 <CategoryBarChart data={admissionsByStage} multiColor />
-              )}
-            </Card>
+              </Card>
+            )}
 
             <Card title="Staff by Department">
               {loading ? (
@@ -491,15 +407,11 @@ export function AdminDashboard({ tenantId }: Props) {
               )}
             </Card>
 
-            <Card title="Procurement Requests by Status">
-              {loading ? (
-                <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : procurementByStatus.length === 0 ? (
-                <p className="py-10 text-center text-body text-text-secondary">No procurement requests yet.</p>
-              ) : (
+            {!loading && procurementByStatus.length > 0 && (
+              <Card title="Procurement Requests by Status">
                 <CategoryDonut data={procurementByStatus} centerLabel="Requests" />
-              )}
-            </Card>
+              </Card>
+            )}
 
             <Card title="Average Exam Score by Grade Level">
               {examsLoading ? (
@@ -511,47 +423,40 @@ export function AdminDashboard({ tenantId }: Props) {
               )}
             </Card>
 
-            <Card title="Top Student">
+            <Card title="Top Student by Grade">
               {examsLoading ? (
                 <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : !topStudent ? (
+              ) : topByGrade.length === 0 ? (
                 <p className="py-10 text-center text-body text-text-secondary">No exam results recorded yet.</p>
               ) : (
-                <div className="flex items-center gap-4 py-6">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-light">
-                    <Trophy size={26} className="text-accent" />
-                  </div>
-                  <div>
-                    <div className="text-card-title font-semibold text-text-primary">{topStudent.name}</div>
-                    <div className="text-body text-text-secondary">
-                      {topStudent.averagePercent}% average across recorded exams
+                <div className="divide-y divide-border">
+                  {topByGrade.map((entry) => (
+                    <div key={entry.grade} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-light">
+                        <Trophy size={18} className="text-accent" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-body font-medium text-text-primary">{entry.name}</div>
+                        <div className="text-caption text-text-secondary">Grade {entry.grade}</div>
+                      </div>
+                      <div className="text-body font-semibold text-text-primary">{entry.averagePercent}%</div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               )}
               <p className="mt-2 text-caption text-text-secondary">
-                Ranked by average score across every recorded exam, not a single highest mark.
+                Ranked by average score across every recorded exam, one per grade.
               </p>
             </Card>
 
-            <Card title="Activity Participation by Category">
-              {activitiesLoading ? (
-                <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : participationByCategory.length === 0 ? (
-                <p className="py-10 text-center text-body text-text-secondary">No activities set up yet.</p>
-              ) : (
+            {!activitiesLoading && participationByCategory.length > 0 && (
+              <Card title="Activity Participation by Category">
                 <CategoryDonut data={participationByCategory} centerLabel="Students" />
-              )}
-            </Card>
+              </Card>
+            )}
 
-            <Card title="Recent Sports Awards">
-              {activitiesLoading ? (
-                <p className="py-10 text-center text-body text-text-secondary">Loading…</p>
-              ) : sportsAwards.length === 0 ? (
-                <p className="py-10 text-center text-body text-text-secondary">
-                  No awards linked to a sports event yet.
-                </p>
-              ) : (
+            {!activitiesLoading && sportsAwards.length > 0 && (
+              <Card title="Recent Sports Awards">
                 <table className="w-full text-left">
                   <tbody>
                     {sportsAwards.map((award) => (
@@ -567,8 +472,8 @@ export function AdminDashboard({ tenantId }: Props) {
                     ))}
                   </tbody>
                 </table>
-              )}
-            </Card>
+              </Card>
+            )}
 
             <Card title="Users by Role">
               {loading ? (

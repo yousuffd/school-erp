@@ -21,4 +21,16 @@ export class DashboardController {
   getPrincipalSummary() {
     return this.dashboardService.getPrincipalSummary();
   }
+
+  @Get('attendance-trend')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getAttendanceTrend() {
+    return this.dashboardService.getAttendanceTrend();
+  }
+
+  @Get('exam-performance')
+  @Permissions({ module: 'core-admin', action: 'view' })
+  getExamPerformance() {
+    return this.dashboardService.getExamPerformance();
+  }
 }

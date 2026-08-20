@@ -275,6 +275,7 @@ export const api = {
     }),
 
   getTenant: (id: string) => request<Tenant>(`/tenants/${id}`),
+  getMyTenant: () => request<{ school_name: string; logo_url: string | null; primary_color: string }>('/tenants/mine'),
 
   getAcademicYears: (tenantId: string) =>
     request<AcademicYear[]>(`/academic-years?tenantId=${tenantId}`),
@@ -1871,6 +1872,16 @@ export const api = {
   deleteMentorshipMatch: (id: string) => request<void>(`/alumni/mentorship-matches/${id}`, { method: 'DELETE' }),
 
   getPrincipalSummary: () => request<PrincipalSummary>('/dashboard/principal-summary'),
+  getAttendanceTrend: () =>
+    request<{ name: string; present: number; absent: number; late: number; excused: number }[]>(
+      '/dashboard/attendance-trend',
+    ),
+  getExamPerformance: () =>
+    request<{
+      scoreByGrade: { name: string; value: number }[];
+      topStudents: { name: string; averagePercent: number }[];
+      topByGrade: { grade: string; name: string; averagePercent: number }[];
+    }>('/dashboard/exam-performance'),
 };
 
 export { ApiError };
