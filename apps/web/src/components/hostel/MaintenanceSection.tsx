@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { api, ApiError } from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { HostelMaintenanceRequest, HostelRoom } from '@/lib/types';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;

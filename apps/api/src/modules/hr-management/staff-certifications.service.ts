@@ -5,6 +5,7 @@ import { StaffCertification } from './entities/staff-certification.entity';
 import { CreateStaffCertificationDto } from './dto/create-staff-certification.dto';
 import { UpdateStaffCertificationDto } from './dto/update-staff-certification.dto';
 import { scopedRepo } from '../../common/context/tenant-context';
+import { toLocalDateStr } from '../../common/utils/local-date.util';
 
 @Injectable()
 export class StaffCertificationsService {

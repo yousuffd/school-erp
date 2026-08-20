@@ -1460,3 +1460,43 @@ export interface PaymentRecord {
   voided_at?: string | null;
   voided_by?: string | null;
 }
+
+export type DashboardMetricStatus = 'good' | 'warning' | 'bad';
+
+export interface DashboardMetric {
+  label: string;
+  current: number;
+  unit: '%' | 'count';
+  changePoints?: number;
+  changeLabel?: string;
+  target: number;
+  status: DashboardMetricStatus;
+  insight: string;
+}
+
+export interface DashboardExceptionCard {
+  type: 'attendance' | 'academic' | 'finance' | 'staff';
+  title: string;
+  body: string;
+  actionLabel: string;
+  actionHref: string;
+}
+
+export interface DashboardQueueRow {
+  area: string;
+  metric: string;
+  impact: 'High' | 'Medium' | 'Low';
+  owner: string;
+  action: string;
+}
+
+export interface PrincipalSummary {
+  metrics: {
+    attendance: DashboardMetric;
+    passRate: DashboardMetric;
+    feeCollection: DashboardMetric;
+    teacherPresence: DashboardMetric;
+  };
+  exceptions: DashboardExceptionCard[];
+  queue: DashboardQueueRow[];
+}

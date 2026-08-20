@@ -5,6 +5,7 @@ import { ProcurementRequest, ProcurementRequestStatus } from './entities/procure
 import { CreateProcurementRequestDto } from './dto/create-procurement-request.dto';
 import { UpdateProcurementRequestStatusDto } from './dto/update-procurement-request-status.dto';
 import { scopedRepo } from '../../common/context/tenant-context';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 // Only these forward transitions are allowed — no jumping straight from
 // pending to fulfilled, and nothing moves once rejected or fulfilled.

@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api, ApiError } from '@/lib/api';
 import { SalaryStructure, Employee } from '@/lib/types';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;

@@ -9,6 +9,7 @@ import { CategoryDonut } from '@/components/charts/CategoryDonut';
 import { groupCounts } from '@/lib/chart-utils';
 import { api } from '@/lib/api';
 import { Exam, SchoolClass, Subject } from '@/lib/types';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;

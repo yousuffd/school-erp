@@ -11,6 +11,7 @@ import { PayrollSettingsService } from './payroll-settings.service';
 import { EmployeesService } from '../hr-management/employees.service';
 import { EmployeeStatus } from '../hr-management/entities/employee.entity';
 import { scopedRepo } from '../../common/context/tenant-context';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 const PF_RATE = 0.12; // employee and employer, each — no wage-ceiling cap (documented simplification)
 const ESI_EMPLOYEE_RATE = 0.0075;

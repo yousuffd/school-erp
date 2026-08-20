@@ -15,6 +15,7 @@ import { assertTeacherClassAccess } from '../../common/utils/teacher-class-scope
 import { getScopedStudentIds } from '../../common/utils/teacher-student-scope.util';
 import { Student } from '../students/entities/student.entity';
 import { SchoolClass } from '../classes/entities/school-class.entity';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 // VERIFY: roleName string comparisons below ('Teacher', 'Parent', 'Student')
 // assume those are the exact values stored on the Role record's `name`

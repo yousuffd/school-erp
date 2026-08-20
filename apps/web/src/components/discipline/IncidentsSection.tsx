@@ -20,6 +20,7 @@ import {
   User,
 } from '@/lib/types';
 import { StudentPicker } from '@/components/library/StudentPicker';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 const TYPE_LABELS: Record<IncidentType, string> = { merit: 'Merit', demerit: 'Demerit' };
 const STATUS_LABELS: Record<IncidentStatus, string> = { open: 'Open', resolved: 'Resolved', escalated: 'Escalated' };

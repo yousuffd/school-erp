@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { api, ApiError } from '@/lib/api';
 import { StaffAttendanceRecord, Employee } from '@/lib/types';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;

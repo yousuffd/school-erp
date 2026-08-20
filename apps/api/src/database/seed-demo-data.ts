@@ -19,6 +19,7 @@ import {
   StaffAttendanceStatus,
 } from '../modules/hr-management/entities/staff-attendance-record.entity';
 import { User } from '../modules/users/entities/user.entity';
+import { toLocalDateStr as toDateStr } from '../common/utils/local-date.util';
 
 /**
  * Seeds realistic sample data into a single named tenant, for demo/pitch
@@ -55,9 +56,7 @@ function pick<T>(arr: T[], seed: number): T {
 function randRange(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
+
 function weekdaysInMonth(year: number, monthIndex0: number): Date[] {
   const days: Date[] = [];
   const d = new Date(year, monthIndex0, 1);

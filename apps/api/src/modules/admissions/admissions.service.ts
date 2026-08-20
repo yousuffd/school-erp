@@ -10,6 +10,7 @@ import { scopedRepo } from '../../common/context/tenant-context';
 import { StudentsService } from '../students/students.service';
 import { Student } from '../students/entities/student.entity';
 import { ClassesService } from '../classes/classes.service';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 export interface AdmissionQuery {
   campusId?: string;

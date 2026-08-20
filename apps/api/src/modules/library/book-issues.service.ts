@@ -8,6 +8,7 @@ import { IssueBookDto } from './dto/issue-book.dto';
 import { ReturnBookDto } from './dto/return-book.dto';
 import { scopedRepo } from '../../common/context/tenant-context';
 import { calculateOverdueFine } from './utils/fine-calculator.util';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 export interface IssueQuery {
   studentId?: string;

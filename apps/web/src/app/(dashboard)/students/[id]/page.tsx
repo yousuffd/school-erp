@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { api, ApiError } from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { isCoreAdminRole } from '@/lib/roles';
+import { todayLocalDateStr } from '@/lib/local-date';
 import {
   AcademicYear,
   AttendanceRecord,
@@ -25,6 +26,7 @@ import {
   StudentStatus,
   User,
 } from '@/lib/types';
+
 
 const STATUS_TONE: Record<StudentStatus, 'success' | 'info' | 'warning' | 'danger' | 'neutral'> = {
   enrolled: 'info',

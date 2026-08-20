@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import clsx from 'clsx';
 import { RecruitmentSection } from './RecruitmentSection';
 import { EmployeesSection } from './EmployeesSection';
@@ -26,8 +27,13 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'succession', label: 'Succession Planning' },
 ];
 
+function initialTabFrom(param: string | null): Tab {
+  return TABS.some((t) => t.key === param) ? (param as Tab) : 'recruitment';
+}
+
 export function HrManagementView({ tenantId }: Props) {
-  const [tab, setTab] = useState<Tab>('recruitment');
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>(() => initialTabFrom(searchParams.get('tab')));
 
   return (
     <div>

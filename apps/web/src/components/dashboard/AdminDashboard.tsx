@@ -7,12 +7,16 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { GlanceCard } from '@/components/ui/GlanceCard';
+import { MetricCard } from '@/components/ui/MetricCard';
+import { ExceptionCard } from '@/components/ui/ExceptionCard';
+import { OperationalQueueTable } from '@/components/ui/OperationalQueueTable';
 import { CategoryDonut } from '@/components/charts/CategoryDonut';
 import { CategoryBarChart } from '@/components/charts/CategoryBarChart';
 import { AttendanceStackedBarChart, type AttendanceBarDatum } from '@/components/charts/AttendanceStackedBarChart';
 import { groupCounts } from '@/lib/chart-utils';
 import { api } from '@/lib/api';
-import { Activity, Award, AcademicYear, Campus, Role, SchoolEvent, Student, User } from '@/lib/types';
+import { Activity, Award, AcademicYear, Campus, Role, SchoolEvent, Student, User, PrincipalSummary } from '@/lib/types';
+import { toLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;
@@ -54,7 +58,7 @@ function getLastNWeekdays(n: number): string[] {
   while (dates.length < n) {
     const day = cursor.getDay();
     if (day !== 0 && day !== 6) {
-      dates.unshift(cursor.toISOString().slice(0, 10));
+      dates.unshift(toLocalDateStr(cursor));
     }
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -65,7 +69,7 @@ function sum(rows: { name: string; value: number }[]): number {
   return rows.reduce((total, r) => total + r.value, 0);
 }
 
-type Tab = 'overview' | 'analytics';
+type Tab = 'overview' | 'setup' | 'analytics';
 
 export function AdminDashboard({ tenantId }: Props) {
   const [tab, setTab] = useState<Tab>('overview');
@@ -92,6 +96,18 @@ export function AdminDashboard({ tenantId }: Props) {
   const [participationByCategory, setParticipationByCategory] = useState<{ name: string; value: number }[]>([]);
   const [sportsAwards, setSportsAwards] = useState<Array<Award & { studentName: string }>>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+
+  const [principalSummary, setPrincipalSummary] = useState<PrincipalSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api
+      .getPrincipalSummary()
+      .then(setPrincipalSummary)
+      .catch((err) => setSummaryError(err.message ?? 'Failed to load dashboard summary'))
+      .finally(() => setSummaryLoading(false));
+  }, [tenantId]);
 
   useEffect(() => {
     Promise.all([
@@ -305,7 +321,7 @@ export function AdminDashboard({ tenantId }: Props) {
       )}
 
       <div className="flex gap-1 border-b border-border">
-        {(['overview', 'analytics'] as Tab[]).map((t) => (
+        {(['overview', 'setup', 'analytics'] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -320,8 +336,55 @@ export function AdminDashboard({ tenantId }: Props) {
           </button>
         ))}
       </div>
-
+      
       {tab === 'overview' && (
+        <div className="space-y-5">
+          {summaryError && (
+            <div className="rounded-card border border-danger/20 bg-danger/10 p-4 text-body text-danger">
+              {summaryError}
+            </div>
+          )}
+
+          {!summaryError && (
+            <>
+              <div>
+                <h2 className="mb-3 text-card-title font-semibold text-text-primary">School Health</h2>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {summaryLoading || !principalSummary ? (
+                    <p className="col-span-full py-6 text-center text-body text-text-secondary">Loading…</p>
+                  ) : (
+                    <>
+                      <MetricCard {...principalSummary.metrics.attendance} />
+                      <MetricCard {...principalSummary.metrics.passRate} />
+                      <MetricCard {...principalSummary.metrics.feeCollection} />
+                      <MetricCard {...principalSummary.metrics.teacherPresence} />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {!summaryLoading && principalSummary && principalSummary.exceptions.length > 0 && (
+                <div>
+                  <h2 className="mb-3 text-card-title font-semibold text-text-primary">Needs Attention</h2>
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                    {principalSummary.exceptions.map((exc, idx) => (
+                      <ExceptionCard key={idx} {...exc} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!summaryLoading && principalSummary && principalSummary.queue.length > 0 && (
+                <Card title="Action Queue">
+                  <OperationalQueueTable rows={principalSummary.queue} />
+                </Card>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {tab === 'setup' && (
         <div className="space-y-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <KpiCard icon={Building2} label="Campuses" value={loading ? '—' : campuses.length} />

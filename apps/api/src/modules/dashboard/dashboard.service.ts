@@ -6,6 +6,7 @@ import { ExamResult } from '../examinations/entities/exam-result.entity';
 import { FeeAssignment } from '../fees/entities/fee-assignment.entity';
 import { StaffAttendanceRecord } from '../hr-management/entities/staff-attendance-record.entity';
 import { scopedRepo } from '../../common/context/tenant-context';
+import { toLocalDateStr as toDateStr } from '../../common/utils/local-date.util';
 
 type MetricStatus = 'good' | 'warning' | 'bad';
 
@@ -69,10 +70,6 @@ function statusFor(current: number, target: number): MetricStatus {
   return 'bad';
 }
 
-function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
 @Injectable()
 export class DashboardService {
   constructor(
@@ -110,7 +107,7 @@ export class DashboardService {
         title: 'ATTENDANCE EXCEPTION',
         body: `${lowClasses.map((c) => `${c.grade}${c.section}`).join(', ')} ${lowClasses.length === 1 ? 'is' : 'are'} below 85% this month.`,
         actionLabel: 'View affected sections',
-        actionHref: '/attendance',
+        actionHref: `/attendance?grade=${encodeURIComponent(lowClasses[0].grade)}&section=${encodeURIComponent(lowClasses[0].section)}`,
       });
     }
     if (worstDrop) {
@@ -137,7 +134,7 @@ export class DashboardService {
         title: 'STAFF ACTION',
         body: `${onLeaveToday} staff ${onLeaveToday === 1 ? 'member is' : 'members are'} on leave today.`,
         actionLabel: 'View staff attendance',
-        actionHref: '/hr-management',
+        actionHref: '/hr-management?tab=attendance',
       });
     }
 

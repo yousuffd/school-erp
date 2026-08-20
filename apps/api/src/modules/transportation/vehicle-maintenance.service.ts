@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { VehicleMaintenanceRecord, MaintenanceRecordStatus } from './entities/vehicle-maintenance-record.entity';
 import { CreateVehicleMaintenanceRecordDto } from './dto/create-vehicle-maintenance-record.dto';
 import { scopedRepo } from '../../common/context/tenant-context';
+import { todayLocalDateStr } from '../../common/utils/local-date.util';
 
 @Injectable()
 export class VehicleMaintenanceService {

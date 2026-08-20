@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CalendarCheck, Save } from 'lucide-react';
 import { TopBar } from '@/components/layout/TopBar';
 import { Card } from '@/components/ui/Card';
@@ -10,6 +11,7 @@ import { api, ApiError } from '@/lib/api';
 import { auth } from '@/lib/auth';
 import { AttendanceRecord, AttendanceStatus, SchoolClass, Student } from '@/lib/types';
 import { ParentAttendanceView } from '@/components/attendance/ParentAttendanceView';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 const STATUS_OPTIONS: { value: AttendanceStatus; label: string; tone: 'success' | 'danger' | 'warning' | 'info' }[] = [
   { value: 'present', label: 'Present', tone: 'success' },
@@ -32,6 +34,9 @@ function todayISO() {
 export default function AttendancePage() {
   const user = auth.getUser();
   const isParent = user?.role === 'Parent';
+  const searchParams = useSearchParams();
+  const deepLinkGrade = searchParams.get('grade');
+  const deepLinkSection = searchParams.get('section');
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [date, setDate] = useState(todayISO());
@@ -42,6 +47,7 @@ export default function AttendancePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  
 
   useEffect(() => {
     if (!user) return;
@@ -49,7 +55,13 @@ export default function AttendancePage() {
       .getClasses(user.tenantId!)
       .then((c) => {
         setClasses(c);
-        if (c.length > 0 && !selectedClassId) setSelectedClassId(c[0].id);
+        if (!selectedClassId) {
+          const deepLinked = deepLinkGrade
+            ? c.find((cls) => cls.grade_level === deepLinkGrade && cls.section === deepLinkSection)
+            : undefined;
+          if (deepLinked) setSelectedClassId(deepLinked.id);
+          else if (c.length > 0) setSelectedClassId(c[0].id);
+        }
       })
       .catch((err) => setError(err.message));
   }, [user?.tenantId]);

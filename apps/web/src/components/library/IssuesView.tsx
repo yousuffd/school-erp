@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { api, ApiError } from '@/lib/api';
 import { BookIssue, BookWithAvailability, SchoolClass, Student } from '@/lib/types';
 import { StudentPicker } from './StudentPicker';
+import { todayLocalDateStr } from '@/lib/local-date';
 
 interface Props {
   tenantId: string;
