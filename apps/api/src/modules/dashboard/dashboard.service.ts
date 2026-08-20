@@ -479,7 +479,11 @@ export class DashboardService {
    * frontend can show just the top one today and use the same endpoint
    * for a full leaderboard later without a second backend change.
    */
-    async getExamPerformance(): Promise<{ scoreByGrade: { name: string; value: number }[]; topStudents: { name: string; averagePercent: number }[] }> {
+  async getExamPerformance(): Promise<{
+    scoreByGrade: { name: string; value: number }[];
+    topStudents: { name: string; averagePercent: number }[];
+    topByGrade: { grade: string; name: string; averagePercent: number }[];
+  }> {
     const manager = scopedRepo(this.examResultRepo, ExamResult).manager;
 
     const gradeRows: { grade_level: string; avg_pct: string }[] = await manager.query(
@@ -505,9 +509,37 @@ export class DashboardService {
        LIMIT 10`,
     );
 
+    // One top performer per grade — a window function ranks students within
+    // each grade by their own average, and only rank 1 from each grade
+    // survives the outer WHERE. Deliberately grade-level only, not broken
+    // down by section (8-A vs 8-B) — matches what was actually asked for.
+    const topByGradeRows: { grade_level: string; first_name: string; last_name: string; avg_pct: string }[] =
+      await manager.query(
+        `SELECT grade_level, first_name, last_name, avg_pct FROM (
+           SELECT s.grade_level, s.first_name, s.last_name,
+                  AVG((er.marks_obtained::numeric / e.max_marks::numeric) * 100) as avg_pct,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY s.grade_level
+                    ORDER BY AVG((er.marks_obtained::numeric / e.max_marks::numeric) * 100) DESC
+                  ) as rn
+           FROM exam_results er
+           JOIN exams e ON e.id = er.exam_id
+           JOIN students s ON s.id = er.student_id
+           WHERE er.marks_obtained IS NOT NULL
+           GROUP BY s.grade_level, s.id, s.first_name, s.last_name
+         ) ranked
+         WHERE rn = 1
+         ORDER BY grade_level`,
+      );
+
     return {
       scoreByGrade: gradeRows.map((r) => ({ name: r.grade_level, value: Math.round(parseFloat(r.avg_pct) * 10) / 10 })),
       topStudents: studentRows.map((r) => ({
+        name: `${r.first_name} ${r.last_name}`,
+        averagePercent: Math.round(parseFloat(r.avg_pct) * 10) / 10,
+      })),
+      topByGrade: topByGradeRows.map((r) => ({
+        grade: r.grade_level,
         name: `${r.first_name} ${r.last_name}`,
         averagePercent: Math.round(parseFloat(r.avg_pct) * 10) / 10,
       })),
