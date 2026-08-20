@@ -42,6 +42,7 @@ import { HostelModule } from './modules/hostel/hostel.module';
 import { HrManagementModule } from './modules/hr-management/hr-management.module';
 import { PayrollModule } from './modules/payroll/payroll.module';
 import { DiaryModule } from './modules/diary/diary.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 
 @Module({
@@ -85,6 +86,7 @@ import { DiaryModule } from './modules/diary/diary.module';
     HrManagementModule,
     PayrollModule,
     DiaryModule,
+    DashboardModule,
   ],
   providers: [
     // Global rate limit — runs before auth, so it also protects unauthenticated

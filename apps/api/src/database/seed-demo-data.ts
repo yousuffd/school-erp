@@ -237,13 +237,16 @@ async function seedDemoData() {
       [thisMonthDays, true],
     ] as const) {
       // Present probability: normal classes ~95-97%, low-attendance classes
-      // dip further specifically this month (~78-83%) to trigger the
-      // exception card — previous month they're only mildly lower (~90%),
-      // so the MoM trend is real and gradual, not a step function.
+      // dip further specifically this month to trigger the exception card —
+      // deliberately well below the 85% threshold (not just under it), since
+      // LATE also counts as "present" for the dashboard's purposes, and
+      // ordinary random variance across ~140 records/class can land a couple
+      // of points off target either way. Previous month is only mildly
+      // lower, so the MoM trend is real and gradual, not a step function.
       const presentProb = isLowClass
         ? isCurrentMonth
-          ? 0.8
-          : 0.9
+          ? 0.65
+          : 0.85
         : isCurrentMonth
           ? 0.93
           : 0.96;

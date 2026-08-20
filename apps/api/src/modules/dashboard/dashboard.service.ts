@@ -254,7 +254,7 @@ export class DashboardService {
     manager: ReturnType<typeof scopedRepo>['manager'],
   ): Promise<[Metric, { subjectName: string; grade: string; delta: number } | null]> {
     const dateRows: { exam_date: string }[] = await manager.query(
-      `SELECT DISTINCT exam_date FROM exams ORDER BY exam_date DESC LIMIT 2`,
+      `SELECT DISTINCT exam_date::text FROM exams ORDER BY exam_date DESC LIMIT 2`,
     );
     if (dateRows.length === 0) {
       const metric: Metric = {
@@ -292,7 +292,7 @@ export class DashboardService {
     if (prevDate) {
       const rows: { subject_id: string; subject_name: string; grade_level: string; exam_date: string; avg_marks: string }[] =
         await manager.query(
-          `SELECT e.subject_id, s.name as subject_name, sc.grade_level, e.exam_date,
+          `SELECT e.subject_id, s.name as subject_name, sc.grade_level, e.exam_date::text as exam_date,
                   AVG(er.marks_obtained::numeric) as avg_marks
            FROM exam_results er
            JOIN exams e ON e.id = er.exam_id
