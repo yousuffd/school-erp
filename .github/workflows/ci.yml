@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel an in-progress run for the same branch/PR if a new commit lands —
+# saves CI minutes on rapid pushes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Fast job — no database needed. Unit tests here are DB-independent
+  # (mock-based), confirmed by running them with no Postgres available at all.
+  lint-build-test:
+    name: Lint, build, unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint (check only — never auto-fix in CI)
+        run: npx eslint "{src,test}/**/*.ts"
+
+      - name: Unit tests
+        run: npm run test
+
+  # Slower job — spins up a real Postgres, replicates the exact role setup
+  # from Day 2 (school_erp = migration owner, school_erp_app = restricted
+  # runtime role RLS actually applies to), then runs the tenant-isolation
+  # e2e suite. This is the test that would catch a future RLS regression.
+  e2e:
+    name: Tenant isolation e2e
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: school_erp
+          POSTGRES_PASSWORD: ci_owner_password
+          POSTGRES_DB: school_erp_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create restricted app role (mirrors Day 2 dev setup)
+        env:
+          PGPASSWORD: ci_owner_password
+        run: |
+          psql -h localhost -U school_erp -d postgres -c \
+            "CREATE ROLE school_erp_app WITH LOGIN PASSWORD 'ci_app_password' NOSUPERUSER NOBYPASSRLS;"
+
+      - name: Run migrations (as owner role — grants to school_erp_app happen automatically via GrantAppRolePrivileges)
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: school_erp
+          DB_PASSWORD: ci_owner_password
+          DB_DATABASE: school_erp_test
+        run: npm run migration:run
+
+      - name: Generate ephemeral JWT secrets for this run
+        run: |
+          echo "JWT_ACCESS_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "JWT_REFRESH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "PROVISIONING_API_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Run tenant-isolation e2e suite (as the restricted role)
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: school_erp_app
+          DB_PASSWORD: ci_app_password
+          DB_DATABASE: school_erp_test
+        run: npm run test:e2e
